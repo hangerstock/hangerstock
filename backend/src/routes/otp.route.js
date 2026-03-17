@@ -1,4 +1,4 @@
-import generateOtp from "../utils/generateOtp.js";
+import generateOtp from "../utils/generateOTP.js";
 import Otp from "../models/otp.model.js";
 import sendOTP from "../services/smsService.js";
 import { Router } from 'express';
