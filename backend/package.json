@@ -1,9 +1,9 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "backend for speedways uk",
+  "description": "backend for hangerstock",
   "keywords": [
-    "speedways uk"
+    "hangerstock"
   ],
   "license": "ISC",
   "author": "",

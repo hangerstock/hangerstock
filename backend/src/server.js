@@ -48,7 +48,7 @@ app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ limit: '16kb' }));
 
 app.use(cors({
-    origin: ['https://www.bidnordic.com', 'https://bidnordic.com', 'https://bidnordic-frontend.onrender.com', 'http://localhost:5173'],
+    origin: ['https://www.hangerstock.com', 'https://hangerstock.com', 'https://hangerstock-frontend.onrender.com', 'http://localhost:5173', "https://hangerstock-backend.onrender.com"],
     credentials: true,
 }));
 
