@@ -1,17 +1,16 @@
-import { Telnyx } from "telnyx";
+import twilio from "twilio";
 
-const telnyx = new Telnyx(process.env.TELNYX_API_KEY);
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
 const sendOTP = async (phone, otp) => {
-  try {
-    await telnyx.messages.create({
-      from: process.env.TELNYX_PHONE_NUMBER,
-      to: phone,
-      text: `Your verification code is ${otp}`,
-    });
-  } catch (error) {
-    throw new Error(`Send OTP error: ${error.message}`);
-  }
+  await client.messages.create({
+    body: `Your verification code is ${otp}`,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: phone
+  });
 };
 
 export default sendOTP;

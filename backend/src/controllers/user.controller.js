@@ -190,7 +190,7 @@ export const registerUser = async (req, res) => {
       phone,
       image,
       stripeCustomerId,
-      isVerified: false,
+      isVerified: true,
       // Add ID verification fields
       identificationDocument: identificationDocumentUrl,
       identificationDocumentPublicId: identificationDocumentPublicId,
