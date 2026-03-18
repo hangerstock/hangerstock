@@ -10,6 +10,15 @@ function App() {
     const { isPopupOpen, closePopup } = usePopUp();
     const isSearchFormPopUpOpen = isPopupOpen('searchForm');
     const isCategoryImagesSectionOpen = isPopupOpen('category');
+    const languages = [
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "zh-CN", name: "Chinese", flag: "🇨🇳" },
+    { code: "ko", name: "Korean", flag: "🇰🇷" },
+    { code: "id", name: "Indonesian", flag: "🇮🇩" },
+    { code: "es", name: "Spanish", flag: "🇪🇸" },
+    { code: "vi", name: "Vietnamese", flag: "🇻🇳" },
+    { code: "bn", name: "Bangla", flag: "🇧🇩" }
+];
     useEffect(() => {
         const removeGoogleBar = () => {
             // Only hide the iframe banner, don't touch skiptranslate
@@ -33,6 +42,40 @@ function App() {
             observer.disconnect();
         };
     }, []);
+
+    useEffect(() => {
+    // Function to initialize language from cookie
+    const initializeLanguage = () => {
+        // Check if we're coming from a language switch
+        const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+        if (match) {
+            const code = match[1];
+            // Find and set the current language
+            const lang = languages.find(l => l.code === code) || languages[0];
+            // You'll need to expose this setter or use a context
+        }
+    };
+
+    // Ensure Google Translate doesn't hide content
+    const style = document.createElement('style');
+    style.textContent = `
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0px !important; }
+        .skiptranslate { display: none !important; }
+        .goog-te-gadget-simple { font-size: 0px !important; }
+    `;
+    document.head.appendChild(style);
+
+    // Wait for Google Translate to load
+    const checkGoogleTranslate = setInterval(() => {
+        if (window.google && window.google.translate) {
+            clearInterval(checkGoogleTranslate);
+            initializeLanguage();
+        }
+    }, 100);
+
+    return () => clearInterval(checkGoogleTranslate);
+}, []);
     return (
         <main className="bg-gray-50">
             <Header />

@@ -14,23 +14,23 @@ export default function LanguageSwitcher() {
     const [open, setOpen] = useState(false);
 
     // In LanguageSwitcher.jsx, initialize current state from cookie
-    const getInitialLanguage = () => {
-        // Check if we're resetting to English
-        if (window.location.search.includes('reset')) {
-            return languages[0];
-        }
+    // const getInitialLanguage = () => {
+    //     // Check if we're resetting to English
+    //     if (window.location.search.includes('reset')) {
+    //         return languages[0];
+    //     }
 
-        // Try to get current language from cookie
-        const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
-        if (match) {
-            const code = match[1];
-            return languages.find(l => l.code === code) || languages[0];
-        }
-        return languages[0];
-    };
+    //     // Try to get current language from cookie
+    //     const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    //     if (match) {
+    //         const code = match[1];
+    //         return languages.find(l => l.code === code) || languages[0];
+    //     }
+    //     return languages[0];
+    // };
 
     // Then use it:
-    const [current, setCurrent] = useState(getInitialLanguage);
+    const [current, setCurrent] = useState(languages[0]);
 
     // function changeLanguage(lang) {
     //     const select = document.querySelector(".goog-te-combo");
@@ -54,42 +54,102 @@ export default function LanguageSwitcher() {
     //     setOpen(false);
     // }
 
+    // function changeLanguage(lang) {
+    //     if (lang.code === "en") {
+    //         setCurrent(lang);
+    //         setOpen(false);
+
+    //         // Method 1: Try to reset Google Translate properly
+    //         const select = document.querySelector(".goog-te-combo");
+    //         if (select) {
+    //             select.value = "";
+    //             select.dispatchEvent(new Event("change", { bubbles: true }));
+
+    //             // Give Google Translate time to process
+    //             setTimeout(() => {
+    //                 // Then reload without any translation cookies
+    //                 window.location.href = window.location.pathname + "?reset=" + Date.now();
+    //             }, 100);
+    //             return;
+    //         }
+
+    //         // Method 2: If select not found, reload with cache busting
+    //         window.location.href = window.location.pathname + "?reset=" + Date.now();
+    //         return;
+    //     }
+
+    //     // For non-English languages
+    //     const attemptChange = (retries = 5) => {
+    //         const select = document.querySelector(".goog-te-combo");
+
+    //         if (!select) {
+    //             if (retries > 0) setTimeout(() => attemptChange(retries - 1), 300);
+    //             return;
+    //         }
+
+    //         select.value = lang.code;
+    //         select.dispatchEvent(new Event("change", { bubbles: true }));
+    //         select.dispatchEvent(new Event("input", { bubbles: true }));
+    //     };
+
+    //     setCurrent(lang);
+    //     setOpen(false);
+    //     attemptChange();
+    // }
+
     function changeLanguage(lang) {
         if (lang.code === "en") {
             setCurrent(lang);
             setOpen(false);
 
-            // Method 1: Try to reset Google Translate properly
+            // Try multiple methods to reset Google Translate
+
+            // Method 1: Remove Google Translate cookie completely
+            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
+            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." + window.location.hostname;
+
+            // Method 2: Try to reset via the select element
             const select = document.querySelector(".goog-te-combo");
             if (select) {
                 select.value = "";
                 select.dispatchEvent(new Event("change", { bubbles: true }));
-
-                // Give Google Translate time to process
-                setTimeout(() => {
-                    // Then reload without any translation cookies
-                    window.location.href = window.location.pathname + "?reset=" + Date.now();
-                }, 100);
-                return;
             }
 
-            // Method 2: If select not found, reload with cache busting
-            window.location.href = window.location.pathname + "?reset=" + Date.now();
+            // Method 3: Remove Google Translate iframe and banner
+            const removeTranslateElements = () => {
+                document.querySelectorAll('.goog-te-banner-frame, .goog-te-menu-frame, .skiptranslate').forEach(el => {
+                    el.remove();
+                });
+            };
+            removeTranslateElements();
+
+            // Force a full page reload without cache
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 200);
+
             return;
         }
 
         // For non-English languages
-        const attemptChange = (retries = 5) => {
+        const attemptChange = (retries = 10) => {
             const select = document.querySelector(".goog-te-combo");
 
             if (!select) {
-                if (retries > 0) setTimeout(() => attemptChange(retries - 1), 300);
+                if (retries > 0) {
+                    setTimeout(() => attemptChange(retries - 1), 500);
+                }
                 return;
             }
 
             select.value = lang.code;
             select.dispatchEvent(new Event("change", { bubbles: true }));
             select.dispatchEvent(new Event("input", { bubbles: true }));
+
+            // Also try triggering the change via native methods
+            if (select.fireEvent) {
+                select.fireEvent("onchange");
+            }
         };
 
         setCurrent(lang);
