@@ -15,6 +15,12 @@ export default function LanguageSwitcher() {
 
     // In LanguageSwitcher.jsx, initialize current state from cookie
     const getInitialLanguage = () => {
+        // Check if we're resetting to English
+        if (window.location.search.includes('reset')) {
+            return languages[0];
+        }
+
+        // Try to get current language from cookie
         const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
         if (match) {
             const code = match[1];
@@ -53,41 +59,26 @@ export default function LanguageSwitcher() {
             setCurrent(lang);
             setOpen(false);
 
-            const domain = window.location.hostname;
-            const isLocalhost = domain === "localhost" || domain === "127.0.0.1";
+            // Method 1: Try to reset Google Translate properly
+            const select = document.querySelector(".goog-te-combo");
+            if (select) {
+                select.value = "";
+                select.dispatchEvent(new Event("change", { bubbles: true }));
 
-            // Clear every possible variation of the cookie
-            const cookiesToClear = [
-                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`,
-                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}`,
-                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain}`,
-            ];
-
-            // On production also try secure flag
-            if (!isLocalhost) {
-                cookiesToClear.push(
-                    `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}; secure`,
-                    `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain}; secure`
-                );
+                // Give Google Translate time to process
+                setTimeout(() => {
+                    // Then reload without any translation cookies
+                    window.location.href = window.location.pathname + "?reset=" + Date.now();
+                }, 100);
+                return;
             }
 
-            cookiesToClear.forEach(cookie => document.cookie = cookie);
-
-            // Verify cookies are actually cleared before reloading
-            const cookieStillExists = document.cookie.includes("googtrans");
-            if (cookieStillExists) {
-                console.warn("Cookie not cleared, forcing harder reset");
-            }
-
-            // Force reload bypassing cache
-            setTimeout(() => {
-                window.location.href = window.location.href.split("?")[0] +
-                    "?reset=" + Date.now();
-            }, 100);
-
+            // Method 2: If select not found, reload with cache busting
+            window.location.href = window.location.pathname + "?reset=" + Date.now();
             return;
         }
 
+        // For non-English languages
         const attemptChange = (retries = 5) => {
             const select = document.querySelector(".goog-te-combo");
 

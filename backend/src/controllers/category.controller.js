@@ -509,7 +509,8 @@ export const deleteCategoryField = async (req, res) => {
     }
 
     category.fields = category.fields.filter(
-      (f) => f._id.toString() !== fieldId,
+      // (f) => f._id.toString() !== fieldId,
+      (f) => f.name !== fieldId,
     );
     await category.save();
 

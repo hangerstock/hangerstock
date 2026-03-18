@@ -1424,7 +1424,7 @@ const FieldManagerModal = ({
                                                                 <Edit size={16} />
                                                             </button>
                                                             <button
-                                                                onClick={() => onDeleteField(field._id)}
+                                                                onClick={() => onDeleteField(field.name)}
                                                                 className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                                                                 disabled={field.inherited}
                                                                 title={field.inherited ? 'Inherited fields cannot be deleted here' : 'Delete field'}
