@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const languages = [
-    { code: "en", name: "English", flag: "🇬🇧" },
+    { code: "en", name: "English", flag: "🇺🇸" },
     { code: "zh-CN", name: "Chinese", flag: "🇨🇳" },
     { code: "ko", name: "Korean", flag: "🇰🇷" },
     { code: "id", name: "Indonesian", flag: "🇮🇩" },
@@ -12,29 +12,99 @@ const languages = [
 
 export default function LanguageSwitcher() {
     const [open, setOpen] = useState(false);
-    const [current, setCurrent] = useState(languages[0]);
+
+    // In LanguageSwitcher.jsx, initialize current state from cookie
+    const getInitialLanguage = () => {
+        const match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+        if (match) {
+            const code = match[1];
+            return languages.find(l => l.code === code) || languages[0];
+        }
+        return languages[0];
+    };
+
+    // Then use it:
+    const [current, setCurrent] = useState(getInitialLanguage);
+
+    // function changeLanguage(lang) {
+    //     const select = document.querySelector(".goog-te-combo");
+
+    //     if (!select) return;
+
+    //     // If user selects English → reset translation
+    //     if (lang.code === "en") {
+
+    //         document.cookie = "googtrans=/en/en;path=/";
+
+    //         window.location.reload();
+
+    //         return;
+    //     }
+
+    //     select.value = lang.code;
+    //     select.dispatchEvent(new Event("change"));
+
+    //     setCurrent(lang);
+    //     setOpen(false);
+    // }
 
     function changeLanguage(lang) {
-    const select = document.querySelector(".goog-te-combo");
+        if (lang.code === "en") {
+            setCurrent(lang);
+            setOpen(false);
 
-    if (!select) return;
+            const domain = window.location.hostname;
+            const isLocalhost = domain === "localhost" || domain === "127.0.0.1";
 
-    // If user selects English → reset translation
-    if (lang.code === "en") {
+            // Clear every possible variation of the cookie
+            const cookiesToClear = [
+                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`,
+                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}`,
+                `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain}`,
+            ];
 
-        document.cookie = "googtrans=/en/en;path=/";
+            // On production also try secure flag
+            if (!isLocalhost) {
+                cookiesToClear.push(
+                    `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}; secure`,
+                    `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain}; secure`
+                );
+            }
 
-        window.location.reload();
+            cookiesToClear.forEach(cookie => document.cookie = cookie);
 
-        return;
+            // Verify cookies are actually cleared before reloading
+            const cookieStillExists = document.cookie.includes("googtrans");
+            if (cookieStillExists) {
+                console.warn("Cookie not cleared, forcing harder reset");
+            }
+
+            // Force reload bypassing cache
+            setTimeout(() => {
+                window.location.href = window.location.href.split("?")[0] +
+                    "?reset=" + Date.now();
+            }, 100);
+
+            return;
+        }
+
+        const attemptChange = (retries = 5) => {
+            const select = document.querySelector(".goog-te-combo");
+
+            if (!select) {
+                if (retries > 0) setTimeout(() => attemptChange(retries - 1), 300);
+                return;
+            }
+
+            select.value = lang.code;
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+            select.dispatchEvent(new Event("input", { bubbles: true }));
+        };
+
+        setCurrent(lang);
+        setOpen(false);
+        attemptChange();
     }
-
-    select.value = lang.code;
-    select.dispatchEvent(new Event("change"));
-
-    setCurrent(lang);
-    setOpen(false);
-}
 
     return (
         <div className="lang-container relative">

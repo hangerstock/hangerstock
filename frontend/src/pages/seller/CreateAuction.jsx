@@ -444,6 +444,9 @@ const CreateAuction = () => {
             // Pricing
             if (auctionData.auctionType === 'giveaway' || auctionData.auctionType === 'buy_now') {
                 formData.append('startPrice', 0);
+                if (auctionData.reservePrice) {
+                    formData.append('reservePrice', null);
+                }
                 if (auctionData.auctionType === 'buy_now' && auctionData.buyNowPrice) {
                     formData.append('buyNowPrice', auctionData.buyNowPrice);
                 }
@@ -456,6 +459,10 @@ const CreateAuction = () => {
                 }
                 if (auctionData.auctionType === 'standard' || auctionData.auctionType === 'reserve') {
                     formData.append('bidIncrement', auctionData.bidIncrement);
+                    
+                    if(auctionData.buyNowPrice){
+                        formData.append('buyNowPrice', null);
+                    }
                 }
                 if (auctionData.auctionType === 'reserve' && auctionData.reservePrice) {
                     formData.append('reservePrice', auctionData.reservePrice);

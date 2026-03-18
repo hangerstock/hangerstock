@@ -101,13 +101,13 @@ const BundleManifest = ({ bundleItems, categoryFields, auction }) => {
                         </div>
 
                         {/* Export Button */}
-                        <button
+                        {/* <button
                             onClick={handleExportCSV}
                             className="p-1.5 bg-white border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
                             title="Export as CSV"
                         >
                             <Download className="h-4 w-4" />
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>
@@ -128,9 +128,9 @@ const BundleManifest = ({ bundleItems, categoryFields, auction }) => {
                                     {field.label}
                                 </th>
                             ))}
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Notes
-                            </th>
+                            </th> */}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -162,7 +162,7 @@ const BundleManifest = ({ bundleItems, categoryFields, auction }) => {
                                             </div>
                                         </td>
                                     ))}
-                                    <td className="px-4 py-3">
+                                    {/* <td className="px-4 py-3">
                                         {item.notes ? (
                                             <span className="text-gray-600 text-sm line-clamp-1" title={item.notes}>
                                                 {item.notes}
@@ -170,7 +170,7 @@ const BundleManifest = ({ bundleItems, categoryFields, auction }) => {
                                         ) : (
                                             <span className="text-gray-400">-</span>
                                         )}
-                                    </td>
+                                    </td> */}
                                 </tr>
                             ))
                         ) : (

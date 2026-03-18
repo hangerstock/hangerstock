@@ -979,6 +979,10 @@ const EditAuction = () => {
             if (formData.auctionType === 'giveaway' || formData.auctionType === 'buy_now') {
                 formDataToSend.append('startPrice', 0);
 
+                if (formData.reservePrice) {
+                    formDataToSend.append('reservePrice', null);
+                }
+
                 if (formData.auctionType === 'buy_now' && formData.buyNowPrice) {
                     formDataToSend.append('buyNowPrice', formData.buyNowPrice);
                 }
@@ -994,6 +998,10 @@ const EditAuction = () => {
                 if (formData.auctionType === 'standard' || formData.auctionType === 'reserve') {
                     if (formData.bidIncrement) {
                         formDataToSend.append('bidIncrement', formData.bidIncrement);
+                    }
+
+                    if (formData.buyNowPrice) {
+                        formDataToSend.append('buyNowPrice', null);
                     }
                 }
 

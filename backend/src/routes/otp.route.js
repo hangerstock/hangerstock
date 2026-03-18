@@ -54,7 +54,7 @@ otpRouter.post("/verify", async (req, res) => {
 
   await Otp.deleteMany({ phone });
 
-//   await User.findOneAndUpdate({phone: phone}, {isVerified: true}, {new: true});
+  // await User.findOneAndUpdate({phone: phone}, {isVerified: true}, {new: true});
 
   res.json({ success: true });
 });

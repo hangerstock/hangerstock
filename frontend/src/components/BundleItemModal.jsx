@@ -156,7 +156,7 @@ const BundleItemModal = ({
                     </div>
 
                     {/* Notes Field */}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Notes (Optional)
                         </label>
@@ -167,7 +167,7 @@ const BundleItemModal = ({
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                             placeholder="Any additional notes about this item..."
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex justify-end gap-2 mt-6">

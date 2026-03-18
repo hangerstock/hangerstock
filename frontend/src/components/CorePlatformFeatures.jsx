@@ -10,7 +10,7 @@ function CorePlatformFeatures() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => setVisible(entry.isIntersecting),
-            { threshold: 0.25 }
+            { threshold: 0.1 }
         );
 
         if (ref.current) observer.observe(ref.current);
@@ -48,7 +48,7 @@ function CorePlatformFeatures() {
             points: [
                 "Flexible pricing settings",
                 "Live countdown timers",
-                "Automatic bid increments",
+                "Multiple auction types",
             ],
         },
         {

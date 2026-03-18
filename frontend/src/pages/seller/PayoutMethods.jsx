@@ -130,7 +130,7 @@ function PayoutMethods() {
                 <div className="flex items-center gap-3">
                     <div>
                         <h3 className="font-semibold text-lg">{title}</h3>
-                        {data && (
+                        {/* {data && (
                             <span
                                 className={`text-xs px-2 py-1 rounded-full ${data.isVerified
                                         ? "bg-green-100 text-green-700"
@@ -139,7 +139,7 @@ function PayoutMethods() {
                             >
                                 {data.isVerified ? "Verified" : "Pending Verification"}
                             </span>
-                        )}
+                        )} */}
                     </div>
                 </div>
 

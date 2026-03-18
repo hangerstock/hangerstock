@@ -10,7 +10,7 @@ function About() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => setVisible(entry.isIntersecting),
-            { threshold: 0.25 }
+            { threshold: 0.1 }
         );
 
         if (ref.current) observer.observe(ref.current);
@@ -52,7 +52,7 @@ function About() {
 
             {/* RIGHT CONTENT PANEL */}
             <div className="bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark flex items-center lg:col-span-3">
-                <Container className="py-10 md:py-10 w-full">
+                <Container className="pt-10 lg:py-10 w-full">
 
                     {/* VALUE PROPOSITION */}
                     <div

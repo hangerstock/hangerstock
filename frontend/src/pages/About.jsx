@@ -61,9 +61,9 @@ const features = [
     },
     {
         number: "05",
-        icon: BarChart3,
-        title: "Market Insights",
-        desc: "Connect with buyers and sellers across all 50 states. Seamless cross-country trading made simple.",
+        icon: Handshake,
+        title: "Simple & Transparent",
+        desc: "Clear fees, straightforward bidding, and honest listings. No hidden costs. No complicated fine print.",
     },
     {
         number: "06",
@@ -234,7 +234,7 @@ function About() {
                     <p className="text-sm md:text-base text-text-secondary dark:text-text-secondary-dark mb-8 mt-4">
                         We don't compromise on what matters most.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-full mx-auto">
                         {[
                             { icon: "🔒", title: "Privacy First", desc: "Your data never leaves our secure platform." },
                             { icon: "⚡", title: "Simplicity", desc: "No learning curve. No complicated forms." },

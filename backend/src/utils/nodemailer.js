@@ -191,9 +191,7 @@ const contactEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -296,9 +294,7 @@ const contactConfirmationEmail = async (name, email) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -445,9 +441,7 @@ const bidConfirmationEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -617,9 +611,7 @@ const offerConfirmationEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -781,9 +773,7 @@ const outbidNotificationEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -1315,9 +1305,7 @@ const sendAuctionEndedSellerEmail = async (auction) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -1533,9 +1521,7 @@ const auctionListedEmail = async (auction, seller) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -1719,9 +1705,7 @@ const auctionEndingSoonEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -2324,9 +2308,7 @@ const welcomeEmail = async (user, verificationToken) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -2460,9 +2442,7 @@ const resetPasswordEmail = async (email, url) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -2594,9 +2574,7 @@ const newUserRegistrationEmail = async (adminEmail, user) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -2764,9 +2742,7 @@ const auctionWonAdminEmail = async (adminEmail, auction, buyer) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -3023,9 +2999,7 @@ const auctionEndedAdminEmail = async (adminEmail, auction) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -3264,9 +3238,7 @@ const flaggedCommentAdminEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -3481,9 +3453,7 @@ const newCommentSellerEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -3674,9 +3644,7 @@ const newCommentBidderEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -3870,9 +3838,7 @@ const auctionSubmittedForApprovalEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -4109,9 +4075,7 @@ const auctionApprovedEmail = async (seller, auction) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -4361,9 +4325,7 @@ const newAuctionNotificationEmail = async (buyer, auction, seller) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                             <div class="listing-badge">${listingStatus}</div>
@@ -4625,9 +4587,7 @@ const newBidNotificationEmail = async (seller, auction, bidAmount, bidder) => {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -4820,9 +4780,7 @@ const newOfferNotificationEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -5026,9 +4984,7 @@ const offerCanceledEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -5238,9 +5194,7 @@ const offerAcceptedEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>
@@ -5449,9 +5403,7 @@ const offerRejectedEmail = async (
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo-container">
-                                <img src="${process.env.FRONTEND_URL}/logo.png" alt="HangerStock Logo" class="logo">
-                            </div>
+                            
                             <div class="brand-name">HangerStock</div>
                             <div class="tagline">Fashion Closeout Auctions</div>
                         </div>

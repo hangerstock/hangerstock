@@ -9,7 +9,7 @@ function Hero() {
             {/* Background Image */}
             <div className="absolute inset-0 overflow-hidden">
                 <img
-                    src={`https://images.pexels.com/photos/6567283/pexels-photo-6567283.jpeg`}
+                    src={heroImg}
                     alt="Fashion Auction"
                     className="absolute inset-0 w-full h-full object-cover animate-slowZoom"
                 />

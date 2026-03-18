@@ -1096,22 +1096,22 @@ auctionSchema.pre("save", function (next) {
   }
 
   // Validate buy now price is higher than start price
-  if (this.buyNowPrice && this.buyNowPrice < this.startPrice) {
-    return next(
-      new Error("Buy Now price must be greater than or equal to start price"),
-    );
-  }
+  // if (this.buyNowPrice && this.buyNowPrice < this.startPrice) {
+  //   return next(
+  //     new Error("Buy Now price must be greater than or equal to start price"),
+  //   );
+  // }
 
   // Validate buy now price is higher than reserve price for reserve auctions
-  if (
-    this.auctionType === "reserve" &&
-    this.buyNowPrice &&
-    this.buyNowPrice < this.reservePrice
-  ) {
-    return next(
-      new Error("Buy Now price must be greater than or equal to reserve price"),
-    );
-  }
+  // if (
+  //   this.auctionType === "reserve" &&
+  //   this.buyNowPrice &&
+  //   this.buyNowPrice < this.reservePrice
+  // ) {
+  //   return next(
+  //     new Error("Buy Now price must be greater than or equal to reserve price"),
+  //   );
+  // }
 
   next();
 });

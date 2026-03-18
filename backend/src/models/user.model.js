@@ -210,11 +210,11 @@ const userSchema = new Schema(
     // Account Status
     isVerified: {
       type: Boolean,
-      default: false,
+      default: true, //changed
     },
     isEmailVerified: {
       type: Boolean,
-      default: false,
+      default: true, //changed
     },
     isActive: {
       type: Boolean,

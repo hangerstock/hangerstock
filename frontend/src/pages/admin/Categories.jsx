@@ -1023,7 +1023,7 @@ const CategoryFormModal = ({
                                     value={formData.name}
                                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    placeholder="e.g., Tractors, Excavators"
+                                    placeholder="e.g., tshirt, pant"
                                     required
                                 />
                             </div>
@@ -1266,7 +1266,7 @@ const CategoryFormModal = ({
                     <button
                         type="submit"
                         disabled={uploading}
-                        className="flex-1 px-4 py-3 bg--primary text-white hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-3 bg-bg-primary text-white hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {uploading ? (
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
