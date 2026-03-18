@@ -98,64 +98,79 @@ export default function LanguageSwitcher() {
     // }
 
     function changeLanguage(lang) {
-        if (lang.code === "en") {
-            setCurrent(lang);
-            setOpen(false);
-
-            // Try multiple methods to reset Google Translate
-
-            // Method 1: Remove Google Translate cookie completely
-            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
-            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." + window.location.hostname;
-
-            // Method 2: Try to reset via the select element
-            const select = document.querySelector(".goog-te-combo");
-            if (select) {
-                select.value = "";
-                select.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-
-            // Method 3: Remove Google Translate iframe and banner
-            const removeTranslateElements = () => {
-                document.querySelectorAll('.goog-te-banner-frame, .goog-te-menu-frame, .skiptranslate').forEach(el => {
-                    el.remove();
-                });
-            };
-            removeTranslateElements();
-
-            // Force a full page reload without cache
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 200);
-
-            return;
-        }
-
-        // For non-English languages
-        const attemptChange = (retries = 10) => {
-            const select = document.querySelector(".goog-te-combo");
-
-            if (!select) {
-                if (retries > 0) {
-                    setTimeout(() => attemptChange(retries - 1), 500);
-                }
-                return;
-            }
-
-            select.value = lang.code;
-            select.dispatchEvent(new Event("change", { bubbles: true }));
-            select.dispatchEvent(new Event("input", { bubbles: true }));
-
-            // Also try triggering the change via native methods
-            if (select.fireEvent) {
-                select.fireEvent("onchange");
-            }
-        };
-
+    if (lang.code === "en") {
         setCurrent(lang);
         setOpen(false);
-        attemptChange();
+        
+        const domain = window.location.hostname;
+        const domainParts = domain.split('.');
+        const rootDomain = domainParts.slice(-2).join('.'); // gets example.com from subdomain.example.com
+        
+        // Generate ALL possible domain variations
+        const domains = [
+            '', // empty = current domain only
+            domain,
+            `.${domain}`,
+            domain.replace(/^www\./, ''), // without www
+            `.${domain.replace(/^www\./, '')}`,
+            rootDomain,
+            `.${rootDomain}`,
+            `www.${rootDomain}`,
+            `.www.${rootDomain}`
+        ];
+        
+        // Clear cookies for ALL path variations
+        const paths = ['/', '/en/', '/us/', '/home/']; // add your common paths
+        
+        // Generate every possible cookie combination
+        domains.forEach(domainVar => {
+            paths.forEach(path => {
+                // Without secure flag
+                let cookieStr = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
+                if (domainVar) cookieStr += `; domain=${domainVar}`;
+                document.cookie = cookieStr;
+                
+                // With secure flag
+                cookieStr += '; secure';
+                document.cookie = cookieStr;
+            });
+        });
+        
+        // Also try to reset via Google Translate element
+        const select = document.querySelector(".goog-te-combo");
+        if (select) {
+            select.value = "";
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        
+        // Remove Google Translate elements
+        document.querySelectorAll('.goog-te-banner-frame, .skiptranslate, iframe[src*="translate"]').forEach(el => {
+            el.remove();
+        });
+        
+        // Force reload with cache busting
+        setTimeout(() => {
+            window.location.href = window.location.href.split('?')[0] + '?reset=' + Date.now();
+        }, 200);
+        
+        return;
     }
+
+    // For non-English languages (your existing code)
+    const attemptChange = (retries = 5) => {
+        const select = document.querySelector(".goog-te-combo");
+        if (!select) {
+            if (retries > 0) setTimeout(() => attemptChange(retries - 1), 300);
+            return;
+        }
+        select.value = lang.code;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    setCurrent(lang);
+    setOpen(false);
+    attemptChange();
+}
 
     return (
         <div className="lang-container relative">
