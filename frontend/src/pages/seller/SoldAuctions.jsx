@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { LoadingSpinner, SellerContainer, SellerHeader, SellerSidebar } from "../../components";
-import { Award, Calendar, Clock, DollarSign, Eye, Gavel, MapPin, Phone, Mail, User, Plane, History, Shield, Package } from "lucide-react";
+import { Award, Calendar, Clock, DollarSign, Eye, Gavel, MapPin, Phone, Mail, User, Plane, History, Shield, Package, Truck, FileText, Copy } from "lucide-react";
 import axiosInstance from "../../utils/axiosInstance";
 import { Link } from "react-router-dom";
 
@@ -11,6 +11,7 @@ function SoldAuctions() {
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [copiedTracking, setCopiedTracking] = useState(false);
 
     // Fetch seller's won auctions
     const fetchSoldAuctions = async () => {
@@ -37,6 +38,12 @@ function SoldAuctions() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const copyTrackingNumber = (trackingNumber) => {
+        navigator.clipboard.writeText(trackingNumber);
+        setCopiedTracking(true);
+        setTimeout(() => setCopiedTracking(false), 2000);
     };
 
     // Simplified transform function since backend does most of the work
@@ -122,7 +129,6 @@ function SoldAuctions() {
                     <SellerContainer>
                         <div className="flex justify-center items-center h-64">
                             <div className="text-center">
-                                {/* <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div> */}
                                 <LoadingSpinner />
                                 <p className="mt-4 text-gray-600">Loading sold auctions...</p>
                             </div>
@@ -188,7 +194,6 @@ function SoldAuctions() {
                 <SellerContainer>
                     <div className="max-w-full pt-16 pb-7 md:pt-0">
                         <h2 className="text-3xl md:text-4xl font-bold my-5 text-gray-800">Sold Auctions</h2>
-                        {/* <p className="text-gray-600">Review completed auctions and contact winners for transaction details.</p> */}
                     </div>
 
                     {/* Auction Selection */}
@@ -226,7 +231,6 @@ function SoldAuctions() {
                                             </span>
                                         </div>
                                         <h3 className="text-2xl font-bold text-gray-900"><Link to={`/auction/${selectedAuction.id}`} target="_blank">{selectedAuction.title}</Link></h3>
-                                        {/* <p className="mt-2 text-gray-600">{selectedAuction.description}</p> */}
 
                                         <div className="flex flex-wrap gap-4 mt-4">
                                             <div>
@@ -247,6 +251,98 @@ function SoldAuctions() {
                                         <div className="text-xs mt-1">Auction completed</div>
                                     </div>
                                 </div>
+
+                                {/* Shipping Information Section */}
+                                {selectedAuction.shipping && selectedAuction.shipping.transaction?.trackingNumber && (
+                                    <div className="mt-6 pt-6 border-t border-gray-200">
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Truck size={18} className="text-blue-600" />
+                                                    <h4 className="font-semibold text-blue-800">Shipping Information</h4>
+                                                </div>
+                                                {selectedAuction.shipping.transaction?.labelUrl && (
+                                                    <a
+                                                        href={selectedAuction.shipping.transaction.labelUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                                                    >
+                                                        <FileText size={12} />
+                                                        Download Label
+                                                    </a>
+                                                )}
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                {selectedAuction.shipping.rate?.provider && (
+                                                    <div>
+                                                        <span className="text-gray-600">Carrier:</span>
+                                                        <span className="font-medium ml-2">{selectedAuction.shipping.rate.provider}</span>
+                                                    </div>
+                                                )}
+                                                {selectedAuction.shipping.rate?.serviceLevel?.name && (
+                                                    <div>
+                                                        <span className="text-gray-600">Service:</span>
+                                                        <span className="font-medium ml-2">{selectedAuction.shipping.rate.serviceLevel.name}</span>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <span className="text-gray-600">Tracking Number:</span>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <a
+                                                            href={selectedAuction.shipping.transaction.trackingUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-600 hover:underline font-mono text-sm break-all"
+                                                        >
+                                                            {selectedAuction.shipping.transaction.trackingNumber}
+                                                        </a>
+                                                        <button
+                                                            onClick={() => copyTrackingNumber(selectedAuction.shipping.transaction.trackingNumber)}
+                                                            className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                                            title="Copy tracking number"
+                                                        >
+                                                            <Copy size={14} className="text-gray-500" />
+                                                        </button>
+                                                    </div>
+                                                    {copiedTracking && (
+                                                        <span className="text-xs text-green-600 mt-1">Copied!</span>
+                                                    )}
+                                                </div>
+                                                {selectedAuction.shipping.rate?.estimatedDays && (
+                                                    <div>
+                                                        <span className="text-gray-600">Est. Delivery:</span>
+                                                        <span className="font-medium ml-2">{selectedAuction.shipping.rate.estimatedDays} days</span>
+                                                    </div>
+                                                )}
+                                                {selectedAuction.shipping.transaction?.purchasedAt && (
+                                                    <div>
+                                                        <span className="text-gray-600">Label Purchased:</span>
+                                                        <span className="font-medium ml-2">{formatDate(selectedAuction.shipping.transaction.purchasedAt)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {selectedAuction.shipping.tracking?.status && selectedAuction.shipping.tracking.status !== 'PRE_TRANSIT' && (
+                                                <div className="mt-3 pt-3 border-t border-blue-200">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${selectedAuction.shipping.tracking.status === 'DELIVERED' ? 'bg-green-500' :
+                                                                selectedAuction.shipping.tracking.status === 'TRANSIT' ? 'bg-blue-500' :
+                                                                    'bg-yellow-500'
+                                                            }`} />
+                                                        <span className="text-sm font-medium">
+                                                            Status: {selectedAuction.shipping.tracking.status.replace('_', ' ')}
+                                                        </span>
+                                                    </div>
+                                                    {selectedAuction.shipping.tracking.statusDetails && (
+                                                        <p className="text-xs text-gray-600 mt-1">{selectedAuction.shipping.tracking.statusDetails}</p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Auction Timeline */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-gray-200">

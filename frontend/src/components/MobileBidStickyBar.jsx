@@ -127,7 +127,7 @@ const MobileBidStickyBar = ({
             <p className="text-lg font-semibold text-text-primary dark:text-text-primary-dark">
               {isGiveaway ? (
                 <span className="flex items-center gap-1 text-green-600 dark:text-green-400">FREE 🎁</span>
-              ) : (
+              ) : auction?.auctionType === 'buy_now' ? formatCurrency(auction?.buyNowPrice) : (
                 `${formatCurrency(currentBid) || 0}`
               )}
             </p>

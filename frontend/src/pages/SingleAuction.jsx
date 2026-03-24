@@ -258,25 +258,9 @@ function SingleAuction() {
             return;
         }
 
-        try {
-            setBuying(true);
+        // setBuying(true);
 
-            // Execute Buy Now - SIMPLIFIED VERSION
-            const { data } = await axiosInstance.post(`/api/v1/buy-now/${id}`);
-
-            if (data.success) {
-                setAuction(data.data.auction);
-                toast.success('Congratulations! You have purchased this item.');
-
-                // Optionally scroll to show success message
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        } catch (error) {
-            toast.error(error?.response?.data?.message || 'Failed to complete Buy Now purchase');
-            console.error('Buy Now error:', error);
-        } finally {
-            setBuying(false);
-        }
+        setShowBuyNowModal(true)
     };
 
     const handleClaimNow = async () => {

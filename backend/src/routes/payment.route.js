@@ -1,6 +1,9 @@
 import { Router } from "express";
 import express from "express";
 import {
+  confirmCheckoutPayment,
+  createBankTransferPayment,
+  createCheckoutPayment,
   createWonAuctionPayment,
   getAuctionPaymentStatus,
   handleStripeWebhook,
@@ -13,6 +16,11 @@ const paymentRouter = Router();
 paymentRouter.use(auth);
 paymentRouter.post("/create-won-auction-payment", createWonAuctionPayment);
 paymentRouter.get("/auction/:auctionId/status", getAuctionPaymentStatus);
+
+// Add these new routes
+paymentRouter.post("/create-checkout-payment", createCheckoutPayment);
+paymentRouter.post("/confirm-checkout-payment", confirmCheckoutPayment);
+paymentRouter.post("/create-bank-transfer-payment", createBankTransferPayment);
 
 // Webhook route (no auth)
 paymentRouter.post(

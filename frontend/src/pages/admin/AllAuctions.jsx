@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AdminContainer, AdminHeader, AdminSidebar, LoadingSpinner, PaymentStatusDropdown } from "../../components";
-import { Search, Filter, Gavel, Clock, Eye, Edit, Shield, TrendingUp, User, Award, MoreVertical, Trash2, AlertTriangle, CheckCircle, Star, Crown, Plus, FileText, Banknote, RefreshCcw } from "lucide-react";
+import { Search, Filter, Gavel, Clock, Eye, Edit, Shield, TrendingUp, User, Award, MoreVertical, Trash2, AlertTriangle, CheckCircle, Star, Crown, Plus, FileText, Banknote, RefreshCcw, Truck, Copy } from "lucide-react";
 import { about } from "../../assets";
 import toast from "react-hot-toast";
 import axiosInstance from "../../utils/axiosInstance";
@@ -229,6 +229,24 @@ function AllAuctions() {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update payment status');
+        }
+    };
+
+    // Add this function in your component
+    const handleGenerateLabel = async (auctionId) => {
+        try {
+            const loadingToast = toast.loading('Generating shipping label...');
+
+            const { data } = await axiosInstance.post(`/api/v1/admin/${auctionId}/generate-shipping-label`);
+
+            toast.dismiss(loadingToast);
+
+            if (data.success) {
+                toast.success(`Label generated! Tracking: ${data.data.trackingNumber}`);
+                fetchAuctions(); // Refresh the list
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to generate label");
         }
     };
 
@@ -639,6 +657,16 @@ function AllAuctions() {
 
                                                             {activeDropdown === auction._id && (
                                                                 <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-40 py-1">
+
+                                                                    {auction.paymentStatus === 'completed' && auction.paymentMethod === 'bank_transfer' && !auction.shipping?.transaction?.trackingNumber && (
+                                                                        <button
+                                                                            onClick={() => handleGenerateLabel(auction._id)}
+                                                                            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-colors"
+                                                                        >
+                                                                            <Truck size={16} />
+                                                                            <span>Generate Shipping Label</span>
+                                                                        </button>
+                                                                    )}
 
                                                                     {auction?.invoice?.url && (
                                                                         <Link
@@ -1064,6 +1092,80 @@ function AllAuctions() {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Shipping Information - Add this after Timeline & Participants section */}
+                                    {selectedAuction?.shipping && selectedAuction?.shipping.transaction?.trackingNumber && (
+                                        <div className="my-8 pt-4 border-t border-gray-200">
+                                            <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                <Truck size={18} className="text-blue-600" />
+                                                Shipping Information
+                                            </h5>
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {selectedAuction.shipping.rate?.provider && (
+                                                        <div>
+                                                            <span className="text-sm text-gray-600">Carrier:</span>
+                                                            <p className="font-medium text-gray-900">{selectedAuction.shipping.rate.provider}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedAuction.shipping.rate?.serviceLevel?.name && (
+                                                        <div>
+                                                            <span className="text-sm text-gray-600">Service:</span>
+                                                            <p className="font-medium text-gray-900">{selectedAuction.shipping.rate.serviceLevel.name}</p>
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <span className="text-sm text-gray-600">Tracking Number:</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <a
+                                                                href={selectedAuction.shipping.transaction.trackingUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="font-medium text-blue-600 hover:underline break-all"
+                                                            >
+                                                                {selectedAuction.shipping.transaction.trackingNumber}
+                                                            </a>
+                                                            <button
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(selectedAuction.shipping.transaction.trackingNumber);
+                                                                    toast.success("Tracking number copied!");
+                                                                }}
+                                                                className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                                                title="Copy tracking number"
+                                                            >
+                                                                <Copy size={14} className="text-gray-500" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    {selectedAuction.shipping.rate?.estimatedDays && (
+                                                        <div>
+                                                            <span className="text-sm text-gray-600">Est. Delivery:</span>
+                                                            <p className="font-medium text-gray-900">{selectedAuction.shipping.rate.estimatedDays} days</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedAuction.shipping.transaction?.purchasedAt && (
+                                                        <div>
+                                                            <span className="text-sm text-gray-600">Label Purchased:</span>
+                                                            <p className="font-medium text-gray-900">{formatDate(selectedAuction.shipping.transaction.purchasedAt)}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedAuction.shipping.transaction?.labelUrl && (
+                                                        <div>
+                                                            <a
+                                                                href={selectedAuction.shipping.transaction.labelUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 text-blue-600 hover:underline"
+                                                            >
+                                                                <FileText size={16} />
+                                                                Download Shipping Label
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Specifications */}
                                     {selectedAuction.specifications && Object.keys(selectedAuction.specifications).length > 0 && (

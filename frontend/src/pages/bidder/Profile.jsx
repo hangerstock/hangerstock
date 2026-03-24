@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../../utils/axiosInstance";
 import toast from "react-hot-toast";
+import useCountryStates from "../../hooks/useCountryStates";
 
 // Default preferences
 const defaultPreferences = {
@@ -34,11 +35,55 @@ function Profile() {
     const [uploadingId, setUploadingId] = useState(false);
     const [idUploadProgress, setIdUploadProgress] = useState(0);
 
+    const { useCountries, useStatesByCountry } = useCountryStates();
+    const [countries, setCountries] = useState([]);
+    const [states, setStates] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState('');
+
     // Fetch user data and stats on component mount
     useEffect(() => {
         fetchUserData();
         fetchUserStats();
     }, []);
+
+    // useEffect to fetch countries
+    useEffect(() => {
+        const fetchCountries = async () => {
+            const countriesList = await useCountries();
+            setCountries(countriesList);
+        };
+        fetchCountries();
+    }, []);
+
+    // function to handle country selection
+    const handleCountryChange = async (countryCode) => {
+        setSelectedCountry(countryCode);
+
+        // Find the selected country object
+        const selectedCountryObj = countries.find(c => c.code === countryCode);
+
+        if (selectedCountryObj) {
+            // Update all three fields
+            handleInputChange('address.country', selectedCountryObj.name); // country field in address
+            handleInputChange('countryCode', countryCode); // countryCode field
+            handleInputChange('countryName', selectedCountryObj.name); // countryName field
+        }
+
+        // Reset state
+        handleInputChange('address.state', '');
+
+        if (countryCode) {
+            try {
+                const statesList = await useStatesByCountry(countryCode);
+                setStates(statesList);
+            } catch (error) {
+                console.error('Error fetching states:', error);
+                toast.error('Failed to load states');
+            }
+        } else {
+            setStates([]);
+        }
+    };
 
     const fetchUserData = async () => {
         try {
@@ -107,7 +152,7 @@ function Profile() {
                 formData.append('street', userData.address.street || '');
                 formData.append('city', userData.address.city || '');
                 formData.append('state', userData.address.state || '');
-                formData.append('zipCode', userData.address.zipCode || '');
+                formData.append('postCode', userData.address.postCode || '');
                 formData.append('country', userData.address.country || '');
             }
 
@@ -513,10 +558,11 @@ function Profile() {
                                                             type="tel"
                                                             value={userData.phone || ''}
                                                             onChange={(e) => handleInputChange('phone', e.target.value)}
-                                                            disabled={!isEditing}
+                                                            disabled
                                                             className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
                                                         />
                                                     </div>
+                                                    <p className="text-sm text-gray-500 mt-1">Phone cannot be changed</p>
                                                 </div>
                                                 <div className="space-y-1">
                                                     <label className="block text-sm font-medium text-secondary">Member Since</label>
@@ -535,6 +581,61 @@ function Profile() {
                                 {/* Address Section */}
                                 {activeSection === "address" && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                                        <div className="space-y-1">
+                                            <label className="block text-sm font-medium text-secondary">Country</label>
+                                            {isEditing ? (
+                                                <select
+                                                    value={userData.countryCode || ''} // Use countryCode for value
+                                                    onChange={(e) => handleCountryChange(e.target.value)}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                >
+                                                    <option value="">Select country</option>
+                                                    {countries.map(country => (
+                                                        <option key={country.code} value={country.code}>
+                                                            {country.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={userData.address?.country || userData.countryName || ''}
+                                                    disabled
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100"
+                                                    placeholder="Country"
+                                                />
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="block text-sm font-medium text-secondary">State</label>
+                                            {states.length > 0 ? (
+                                                <select
+                                                    value={userData.address?.state || ''}
+                                                    onChange={(e) => handleInputChange('address.state', e.target.value)}
+                                                    disabled={!isEditing || !userData.countryCode}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
+                                                >
+                                                    <option value="">Select state</option>
+                                                    {states.map(state => (
+                                                        <option key={state.id || state.code} value={state.name}>
+                                                            {state.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={userData.address?.state || ''}
+                                                    onChange={(e) => handleInputChange('address.state', e.target.value)}
+                                                    disabled={!isEditing}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
+                                                    placeholder={userData.countryCode ? "Enter state" : "Select a country first"}
+                                                />
+                                            )}
+                                        </div>
+
                                         <div className="md:col-span-2 space-y-1">
                                             <label className="block text-sm font-medium text-secondary">Street Address</label>
                                             <input
@@ -546,6 +647,7 @@ function Profile() {
                                                 placeholder="Street address"
                                             />
                                         </div>
+
                                         <div className="space-y-1">
                                             <label className="block text-sm font-medium text-secondary">City</label>
                                             <input
@@ -557,17 +659,7 @@ function Profile() {
                                                 placeholder="City"
                                             />
                                         </div>
-                                        <div className="space-y-1">
-                                            <label className="block text-sm font-medium text-secondary">State</label>
-                                            <input
-                                                type="text"
-                                                value={userData.address?.state || ''}
-                                                onChange={(e) => handleInputChange('address.state', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
-                                                placeholder="State"
-                                            />
-                                        </div>
+
                                         <div className="space-y-1">
                                             <label className="block text-sm font-medium text-secondary">Post Code</label>
                                             <input
@@ -577,17 +669,6 @@ function Profile() {
                                                 disabled={!isEditing}
                                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
                                                 placeholder="Postal code"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="block text-sm font-medium text-secondary">Country</label>
-                                            <input
-                                                type="text"
-                                                value={userData.address?.country || userData.countryName || ''}
-                                                onChange={(e) => handleInputChange('address.country', e.target.value)}
-                                                disabled={!isEditing}
-                                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100"
-                                                placeholder="Country"
                                             />
                                         </div>
                                     </div>
@@ -606,9 +687,9 @@ function Profile() {
                                     <div className="space-y-6">
                                         {/* Current Status Card */}
                                         <div className={`rounded-lg p-4 ${userData.identificationStatus === 'verified' ? 'bg-green-50 border border-green-200' :
-                                                userData.identificationStatus === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
-                                                    userData.identificationStatus === 'rejected' ? 'bg-red-50 border border-red-200' :
-                                                        'bg-gray-50 border border-gray-200'
+                                            userData.identificationStatus === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
+                                                userData.identificationStatus === 'rejected' ? 'bg-red-50 border border-red-200' :
+                                                    'bg-gray-50 border border-gray-200'
                                             }`}>
                                             <div className="flex items-start gap-3">
                                                 {userData.identificationStatus === 'verified' && <CheckCircle className="text-green-600 flex-shrink-0" size={24} />}
@@ -745,8 +826,8 @@ function Profile() {
                                                             <label
                                                                 htmlFor="identificationDocument"
                                                                 className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${uploadingId
-                                                                        ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
-                                                                        : 'border-gray-300 hover:border-primary hover:bg-blue-50'
+                                                                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                                                                    : 'border-gray-300 hover:border-primary hover:bg-blue-50'
                                                                     }`}
                                                             >
                                                                 <Upload size={24} className="text-gray-400 mb-2" />

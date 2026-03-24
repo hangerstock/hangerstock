@@ -16,7 +16,8 @@ import {
     updatePaymentStatus,
     fetchDVLAData,
     verifyUserIdentity,
-    rejectUserIdentity
+    rejectUserIdentity,
+    generateShippingLabelManually
 } from '../controllers/admin.controller.js';
 import { authAdmin } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
@@ -57,4 +58,9 @@ AdminRouter.put('/:id/payment-status',
     updatePaymentStatus
 );
 
+// generate label for shipping
+AdminRouter.post('/:id/generate-shipping-label', 
+    authAdmin, 
+    generateShippingLabelManually
+);
 export default AdminRouter;

@@ -59,7 +59,7 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
         getCommission();
     }, [isOpen, auction?.buyNowPrice, isGiveaway]);
 
-    const handleBuyNow = async () => {
+    const handleClaim = async () => {
         if (isGiveaway) {
             // Handle giveaway directly (no payment)
             onConfirm();
@@ -68,11 +68,11 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
 
         setProcessing(true);
 
-        // Show processing toast
-        const loadingToast = toast.loading('Processing your payment...');
+        // Show loading toast
+        const loadingToast = toast.loading('Processing your claim...');
 
         try {
-            const response = await axiosInstance.post("/api/v1/buy-now-payment/process", {
+            const response = await axiosInstance.post("/api/v1/buy-now-payment/claim", {
                 auctionId: auction._id
             });
 
@@ -86,24 +86,23 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                     <div className="flex items-center gap-2">
                         <CheckCircle size={20} className="text-green-600" />
                         <div>
-                            <p className="font-semibold">Payment Successful!</p>
+                            <p className="font-semibold">Auction Claimed!</p>
                             <p className="text-sm text-gray-600">
-                                You have successfully purchased "{auction.title}"
+                                You've successfully claimed "{auction.title}". Proceeding to checkout...
                             </p>
                         </div>
                     </div>,
                     {
-                        duration: 5000,
+                        duration: 3000,
                         position: 'top-center',
-                        icon: '🎉',
                     }
                 );
 
-                // Close modal and redirect after delay
+                // Redirect to checkout after delay
                 setTimeout(() => {
                     onClose();
-                    navigate(`/${user?.userType}/auctions/won`); // Redirect to won auctions page
-                }, 2000);
+                    navigate(`/checkout/${auction._id}`);
+                }, 1500);
             }
         } catch (error) {
             toast.dismiss(loadingToast);
@@ -114,14 +113,14 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                 <div className="flex items-center gap-2">
                     <XCircle size={20} className="text-red-600" />
                     <div>
-                        <p className="font-semibold">Payment Failed</p>
+                        <p className="font-semibold">Claim Failed</p>
                         <p className="text-sm text-gray-600">
                             {error.response?.data?.message || "Something went wrong. Please try again."}
                         </p>
                     </div>
                 </div>,
                 {
-                    duration: 6000,
+                    duration: 5000,
                     position: 'top-center',
                 }
             );
@@ -151,7 +150,7 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                 <div className="p-6">
 
                     {/* Header */}
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-full ${isGiveaway ? 'bg-purple-100' : 'bg-green-100'}`}>
                             {isGiveaway ? (
                                 <Gift className="h-6 w-6 text-purple-600" />
@@ -161,10 +160,10 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">
-                                {isGiveaway ? '🎁 Claim Free Item' : 'Buy Now Confirmation'}
+                                {isGiveaway ? '🎁 Claim Free Item' : 'Buy Now'}
                             </h3>
                             <p className="text-sm text-gray-600">
-                                {isGiveaway ? 'Instant claim - completely free' : 'Instant purchase with saved card'}
+                                {isGiveaway ? 'Instant claim - completely free' : 'Claim this item and proceed to checkout'}
                             </p>
                         </div>
                     </div>
@@ -172,13 +171,13 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                     {/* Payment Status Messages */}
                     {paymentStatus === 'success' && (
                         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-green-700 font-medium">✅ Payment successful! Redirecting...</p>
+                            <p className="text-green-700 font-medium">✅ Auction claimed! Redirecting to checkout...</p>
                         </div>
                     )}
 
                     {paymentStatus === 'failed' && (
                         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-700 font-medium">❌ Payment failed. Please try again.</p>
+                            <p className="text-red-700 font-medium">❌ Claim failed. Please try again.</p>
                         </div>
                     )}
 
@@ -194,31 +193,30 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
 
                     {/* Price Breakdown - Only show for non-giveaway */}
                     {!isGiveaway && (
-                        <div className="bg-gray-50 p-4 rounded-lg mb-6 space-y-3">
-                            <div className="flex justify-between text-gray-700">
+                        <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                            <div className="flex justify-between text-gray-700 text-sm">
                                 <span>Buy Now Price</span>
                                 <span className="font-semibold">
                                     {formatCurrency(auction?.buyNowPrice)}
                                 </span>
                             </div>
 
-                            <div className="flex justify-between text-gray-700">
+                            <div className="flex justify-between text-gray-700 text-sm">
                                 <span>Service Fee</span>
                                 <span className="font-semibold">
                                     {formatCurrency(serviceFee)}
                                 </span>
                             </div>
 
-                            <div className="border-t pt-2 flex justify-between text-lg font-bold text-green-600">
-                                <span>Total Payable</span>
+                            <div className="border-t pt-2 flex justify-between text-base font-bold text-green-600">
+                                <span>Total to Pay</span>
                                 <span>{formatCurrency(total)}</span>
                             </div>
 
-                            {/* Payment Method Info */}
                             <div className="mt-3 p-3 bg-blue-50 rounded-lg flex items-center gap-2">
                                 <CreditCard size={16} className="text-blue-600" />
                                 <p className="text-xs text-blue-700">
-                                    Payment will be charged to your saved card
+                                    You'll be redirected to checkout to complete payment and select shipping
                                 </p>
                             </div>
                         </div>
@@ -232,16 +230,16 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                         <ul className="space-y-2 text-sm text-gray-600">
                             <li className="flex items-center gap-2">
                                 <CheckCircle className="h-4 w-4 text-green-500" />
-                                {isGiveaway ? 'Claim the item immediately' : 'Charge your saved card'}
+                                {isGiveaway ? 'Claim the item immediately' : 'Reserve this item for you'}
                             </li>
                             <li className="flex items-center gap-2">
                                 <CheckCircle className="h-4 w-4 text-green-500" />
-                                {isGiveaway ? 'Mark you as the winner' : 'End the auction immediately'}
+                                {isGiveaway ? 'Mark you as the winner' : 'Mark the auction as sold'}
                             </li>
                             {!isGiveaway && (
                                 <li className="flex items-center gap-2">
                                     <CheckCircle className="h-4 w-4 text-green-500" />
-                                    Final price locked at {formatCurrency(auction?.buyNowPrice)}
+                                    Redirect to checkout for payment and shipping
                                 </li>
                             )}
                             <li className="flex items-center gap-2">
@@ -263,7 +261,7 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                         </button>
 
                         <button
-                            onClick={handleBuyNow}
+                            onClick={handleClaim}
                             disabled={processing || externalLoading || paymentStatus === 'success'}
                             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-white rounded-lg transition-colors disabled:opacity-50 ${isGiveaway
                                     ? 'bg-purple-600 hover:bg-purple-700'
@@ -285,7 +283,7 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
                                     ) : (
                                         <>
                                             <CreditCard className="h-5 w-5" />
-                                            Pay {formatCurrency(total)}
+                                            Proceed
                                         </>
                                     )}
                                 </>

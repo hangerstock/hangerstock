@@ -15,10 +15,12 @@ import {
     CreditCard,
     CheckCircle,
     XCircle,
-    Loader
+    Loader,
+    Truck,
+    FileText
 } from "lucide-react";
 import axiosInstance from "../../utils/axiosInstance";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useAuth } from "../../contexts/AuthContext";
@@ -134,111 +136,118 @@ function WonAuctions() {
         setShowContactModal(true);
     };
 
-    const handlePayNow = async (auction) => {
-        // Show loading toast
-        const loadingToast = toast.loading('Processing your payment...', {
-            duration: 5000, // Will be dismissed manually
-        });
+    const navigate = useNavigate();
 
-        try {
-            setProcessingPayment(auction._id);
-            setSelectedAuctionForPayment(auction);
+    // const handlePayNow = async (auction) => {
+    //     // Show loading toast
+    //     const loadingToast = toast.loading('Processing your payment...', {
+    //         duration: 5000, // Will be dismissed manually
+    //     });
 
-            const response = await axiosInstance.post("/api/v1/payments/create-won-auction-payment", {
-                auctionId: auction._id
-            });
+    //     try {
+    //         setProcessingPayment(auction._id);
+    //         setSelectedAuctionForPayment(auction);
 
-            if (response.data.success) {
-                const { paymentIntent, auction: updatedAuction } = response.data.data;
+    //         const response = await axiosInstance.post("/api/v1/payments/create-won-auction-payment", {
+    //             auctionId: auction._id
+    //         });
 
-                // Update local state
-                setAuctions(prevAuctions =>
-                    prevAuctions.map(a =>
-                        a._id === auction._id
-                            ? { ...a, paymentStatus: updatedAuction.paymentStatus }
-                            : a
-                    )
-                );
+    //         if (response.data.success) {
+    //             const { paymentIntent, auction: updatedAuction } = response.data.data;
 
-                setAllAuctions(prevAuctions =>
-                    prevAuctions.map(a =>
-                        a._id === auction._id
-                            ? { ...a, paymentStatus: updatedAuction.paymentStatus }
-                            : a
-                    )
-                );
+    //             // Update local state
+    //             setAuctions(prevAuctions =>
+    //                 prevAuctions.map(a =>
+    //                     a._id === auction._id
+    //                         ? { ...a, paymentStatus: updatedAuction.paymentStatus }
+    //                         : a
+    //                 )
+    //             );
 
-                // Update statistics
-                setStatistics(prev => ({
-                    ...prev,
-                    totalSpent: prev.totalSpent + (auction.finalBid || auction.currentPrice || 0) + (auction.commissionAmount || 0)
-                }));
+    //             setAllAuctions(prevAuctions =>
+    //                 prevAuctions.map(a =>
+    //                     a._id === auction._id
+    //                         ? { ...a, paymentStatus: updatedAuction.paymentStatus }
+    //                         : a
+    //                 )
+    //             );
 
-                // Dismiss loading toast and show success toast
-                toast.dismiss(loadingToast);
-                toast.success(
-                    <div className="flex items-center gap-2">
-                        <CheckCircle size={20} className="text-green-600" />
-                        <div>
-                            <p className="font-semibold">Payment Successful!</p>
-                            <p className="text-sm text-gray-600">
-                                You have successfully paid for "{auction.title}"
-                            </p>
-                        </div>
-                    </div>,
-                    {
-                        duration: 5000,
-                        position: 'top-center',
-                        icon: '🎉',
-                    }
-                );
+    //             // Update statistics
+    //             setStatistics(prev => ({
+    //                 ...prev,
+    //                 totalSpent: prev.totalSpent + (auction.finalBid || auction.currentPrice || 0) + (auction.commissionAmount || 0)
+    //             }));
 
-                // Optional: Show additional success message in the UI
-                setPaymentStatus({
-                    [auction._id]: {
-                        success: true,
-                        message: "Payment completed successfully!"
-                    }
-                });
+    //             // Dismiss loading toast and show success toast
+    //             toast.dismiss(loadingToast);
+    //             toast.success(
+    //                 <div className="flex items-center gap-2">
+    //                     <CheckCircle size={20} className="text-green-600" />
+    //                     <div>
+    //                         <p className="font-semibold">Payment Successful!</p>
+    //                         <p className="text-sm text-gray-600">
+    //                             You have successfully paid for "{auction.title}"
+    //                         </p>
+    //                     </div>
+    //                 </div>,
+    //                 {
+    //                     duration: 5000,
+    //                     position: 'top-center',
+    //                     icon: '🎉',
+    //                 }
+    //             );
 
-                // Refresh auctions to get updated data
-                fetchWonAuctions();
-            }
-        } catch (error) {
-            console.error("Payment error:", error);
+    //             // Optional: Show additional success message in the UI
+    //             setPaymentStatus({
+    //                 [auction._id]: {
+    //                     success: true,
+    //                     message: "Payment completed successfully!"
+    //                 }
+    //             });
 
-            // Dismiss loading toast
-            toast.dismiss(loadingToast);
+    //             // Refresh auctions to get updated data
+    //             fetchWonAuctions();
+    //         }
+    //     } catch (error) {
+    //         console.error("Payment error:", error);
 
-            // Show error toast
-            toast.error(
-                <div className="flex items-center gap-2">
-                    <XCircle size={20} className="text-red-600" />
-                    <div>
-                        <p className="font-semibold">Payment Failed</p>
-                        <p className="text-sm text-gray-600">
-                            {error.response?.data?.message || "Something went wrong. Please try again."}
-                        </p>
-                    </div>
-                </div>,
-                {
-                    duration: 6000,
-                    position: 'top-center',
-                }
-            );
+    //         // Dismiss loading toast
+    //         toast.dismiss(loadingToast);
 
-            setPaymentStatus({
-                [auction._id]: {
-                    success: false,
-                    message: error.response?.data?.message || "Payment failed. Please try again."
-                }
-            });
-        } finally {
-            setProcessingPayment(null);
-        }
-    };
+    //         // Show error toast
+    //         toast.error(
+    //             <div className="flex items-center gap-2">
+    //                 <XCircle size={20} className="text-red-600" />
+    //                 <div>
+    //                     <p className="font-semibold">Payment Failed</p>
+    //                     <p className="text-sm text-gray-600">
+    //                         {error.response?.data?.message || "Something went wrong. Please try again."}
+    //                     </p>
+    //                 </div>
+    //             </div>,
+    //             {
+    //                 duration: 6000,
+    //                 position: 'top-center',
+    //             }
+    //         );
+
+    //         setPaymentStatus({
+    //             [auction._id]: {
+    //                 success: false,
+    //                 message: error.response?.data?.message || "Payment failed. Please try again."
+    //             }
+    //         });
+    //     } finally {
+    //         setProcessingPayment(null);
+    //     }
+    // };
 
     // Add a retry payment function for failed payments
+
+    const handlePayNow = (auction) => {
+        navigate(`/checkout/${auction._id}`);
+    };
+
     const handleRetryPayment = async (auction) => {
         toast((t) => (
             <div className="flex flex-col gap-2">
@@ -269,7 +278,7 @@ function WonAuctions() {
 
     // Add this helper function to check if payment is allowed
     const canPayForAuction = (auction) => {
-        return auction.paymentStatus === "pending" &&
+        return auction.paymentStatus === "pending" || auction.paymentStatus === "failed" &&
             auction.winner?._id === currentUser?._id; // You'll need currentUser from context
     };
 
@@ -466,6 +475,12 @@ function WonAuctions() {
                                                         {auction.paymentStatus === "pending" && "Payment Pending"}
                                                     </span>
                                                 )}
+                                                {/* Payment Method Badge */}
+                                                {auction.paymentMethod && auction.paymentStatus === "completed" && (
+                                                    <span className="text-xs font-medium px-2 py-1 rounded-md bg-gray-100 text-gray-700">
+                                                        {auction.paymentMethod === "credit_card" ? "Card" : "Bank Transfer"}
+                                                    </span>
+                                                )}
                                             </div>
                                             <h3 className="text-xl font-bold text-gray-900">
                                                 {auction.title}
@@ -527,7 +542,7 @@ function WonAuctions() {
                                             <p className="text-sm text-gray-500">Total Bids</p>
                                             <p className="font-semibold">{auction?.bidsCount} bids</p>
                                         </div>
-                                        
+
                                         {/* {
                                             auction?.invoice && (
                                                 <div>
@@ -539,6 +554,91 @@ function WonAuctions() {
                                             )
                                         } */}
                                     </div>
+
+                                    {/* Shipping Information Section - Add after Auction Details */}
+                                    {auction.shipping && auction.shipping.transaction?.trackingNumber && (
+                                        <div className="border-t border-gray-200 pt-4 mb-4">
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <Truck size={18} className="text-blue-600" />
+                                                        <h4 className="font-semibold text-blue-800">Shipping Information</h4>
+                                                    </div>
+                                                    {auction.shipping.transaction?.labelUrl && (
+                                                        <a
+                                                            href={auction.shipping.transaction.labelUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                                                        >
+                                                            <FileText size={12} />
+                                                            Download Label
+                                                        </a>
+                                                    )}
+                                                </div>
+
+                                                <div className="space-y-2 text-sm">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600">Carrier:</span>
+                                                        <span className="font-medium">{auction.shipping.rate?.provider || 'Unknown'}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600">Shipping Cost:</span>
+                                                        <span className="font-medium">{formatCurrency(auction.shipping.rate?.amount) || 'Unknown'}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600">Service:</span>
+                                                        <span className="font-medium">{auction.shipping.rate?.serviceLevel?.name || 'Standard'}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600">Tracking Number:</span>
+                                                        <a
+                                                            href={auction.shipping.transaction.trackingUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-600 hover:underline font-mono"
+                                                        >
+                                                            {auction.shipping.transaction.trackingNumber}
+                                                        </a>
+                                                    </div>
+                                                    {auction.shipping.rate?.estimatedDays && (
+                                                        <div className="flex justify-between">
+                                                            <span className="text-gray-600">Est. Delivery:</span>
+                                                            <span className="font-medium">{auction.shipping.rate.estimatedDays} days</span>
+                                                        </div>
+                                                    )}
+                                                    {auction.shipping.tracking?.estimatedDelivery && (
+                                                        <div className="flex justify-between">
+                                                            <span className="text-gray-600">Est. Delivery Date:</span>
+                                                            <span className="font-medium">{formatDate(auction.shipping.tracking.estimatedDelivery)}</span>
+                                                        </div>
+                                                    )}
+                                                    {auction.shipping.transaction?.purchasedAt && (
+                                                        <div className="flex justify-between">
+                                                            <span className="text-gray-600">Label Purchased:</span>
+                                                            <span className="font-medium">{formatDate(auction.shipping.transaction.purchasedAt)}</span>
+                                                        </div>
+                                                    )}
+                                                    {auction.shipping.tracking?.status && auction.shipping.tracking.status !== 'PRE_TRANSIT' && (
+                                                        <div className="mt-2 pt-2 border-t border-blue-200">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-2 h-2 rounded-full ${auction.shipping.tracking.status === 'DELIVERED' ? 'bg-green-500' :
+                                                                        auction.shipping.tracking.status === 'TRANSIT' ? 'bg-blue-500' :
+                                                                            'bg-yellow-500'
+                                                                    }`} />
+                                                                <span className="text-sm font-medium">
+                                                                    Status: {auction.shipping.tracking.status.replace('_', ' ')}
+                                                                </span>
+                                                            </div>
+                                                            {auction.shipping.tracking.statusDetails && (
+                                                                <p className="text-xs text-gray-600 mt-1">{auction.shipping.tracking.statusDetails}</p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Seller Info */}
                                     <div className="border-t border-gray-200 pt-4 mb-4">

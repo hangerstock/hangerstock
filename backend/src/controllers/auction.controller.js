@@ -56,9 +56,9 @@ export const createAuction = async (req, res) => {
         message: "Only verified sellers can create auctions",
       });
     }
-    
+
     // only active sellers can create auctions
-    if (seller.identificationStatus !== 'verified') {
+    if (seller.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only sellers with verified ID can create auctions",
@@ -337,12 +337,33 @@ export const createAuction = async (req, res) => {
     }
     // ========================================================================
 
+    // Parse parcel data if provided
+    let parcelData = {};
+    if (req.body.parcel) {
+      try {
+        parcelData =
+          typeof req.body.parcel === "string"
+            ? JSON.parse(req.body.parcel)
+            : req.body.parcel;
+      } catch (e) {
+        console.error("Error parsing parcel data:", e);
+      }
+    }
+
     // Create auction data object
     const auctionData = {
       title,
       subTitle: subTitle || "",
       categories: categoriesArray,
       features: features || "",
+      parcel: {
+        weight: parcelData.weight ? parseFloat(parcelData.weight) : undefined,
+        length: parcelData.length ? parseFloat(parcelData.length) : undefined,
+        width: parcelData.width ? parseFloat(parcelData.width) : undefined,
+        height: parcelData.height ? parseFloat(parcelData.height) : undefined,
+        distanceUnit: parcelData.distanceUnit || "in",
+        massUnit: parcelData.massUnit || "lb",
+      },
       description,
       specifications: new Map(Object.entries(aggregatedSpecs)), // Store aggregated data only
       bundleItems: bundleItems.map((item, index) => ({
@@ -862,9 +883,9 @@ export const updateAuction = async (req, res) => {
         message: "Only verified sellers can update auctions",
       });
     }
-    
+
     // only active sellers can update auctions
-    if (seller.identificationStatus !== 'verified') {
+    if (seller.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only sellers with verified ID can update auctions",
@@ -1078,6 +1099,21 @@ export const updateAuction = async (req, res) => {
       }
     }
     // ========================================================================
+
+    // ========== PARCEL DATA HANDLING ==========
+    let parcelData = {};
+    if (req.body.parcel) {
+      try {
+        parcelData =
+          typeof req.body.parcel === "string"
+            ? JSON.parse(req.body.parcel)
+            : req.body.parcel;
+
+        console.log("Parcel data received:", parcelData);
+      } catch (e) {
+        console.error("Error parsing parcel data:", e);
+      }
+    }
 
     // ========== HANDLE REMOVED PHOTOS ==========
     let finalPhotos = [...auction.photos];
@@ -1417,6 +1453,14 @@ export const updateAuction = async (req, res) => {
         specifications: new Map(Object.entries(item.specifications)),
         notes: item.notes || "",
       })),
+      parcel: {
+        weight: parcelData.weight ? parseFloat(parcelData.weight) : undefined,
+        length: parcelData.length ? parseFloat(parcelData.length) : undefined,
+        width: parcelData.width ? parseFloat(parcelData.width) : undefined,
+        height: parcelData.height ? parseFloat(parcelData.height) : undefined,
+        distanceUnit: parcelData.distanceUnit || "in",
+        massUnit: parcelData.massUnit || "lb",
+      },
       location,
       videoLink,
       startPrice: parseFloat(startPrice),
@@ -1567,9 +1611,9 @@ export const deleteAuction = async (req, res) => {
         message: "Only verified sellers can delete auctions",
       });
     }
-    
+
     // only active sellers can delete auctions
-    if (seller.identificationStatus !== 'verified') {
+    if (seller.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only sellers with verified ID can delete auctions",
@@ -1631,9 +1675,9 @@ export const placeBid = async (req, res) => {
         message: "Only verified bidders can place bids",
       });
     }
-    
+
     // only active bidders can place bids
-    if (bidder.identificationStatus !== 'verified') {
+    if (bidder.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only bidders with verified ID can place bids",
@@ -1955,6 +1999,46 @@ export const getWonAuctions = async (req, res) => {
         ? auction.offers.filter((o) => o.status === "pending").length
         : 0,
 
+      // Add shipping tracking information - Complete schema structure
+      shipping: auction.shipping
+        ? {
+            rate: {
+              provider: auction.shipping.rate?.provider,
+              serviceLevel: {
+                name: auction.shipping.rate?.serviceLevel?.name,
+                token: auction.shipping.rate?.serviceLevel?.token,
+                terms: auction.shipping.rate?.serviceLevel?.terms,
+              },
+              amount: auction.shipping.rate?.amount,
+              currency: auction.shipping.rate?.currency,
+              estimatedDays: auction.shipping.rate?.estimatedDays,
+            },
+            transaction: {
+              objectId: auction.shipping.transaction?.objectId,
+              status: auction.shipping.transaction?.status,
+              labelUrl: auction.shipping.transaction?.labelUrl,
+              trackingNumber: auction.shipping.transaction?.trackingNumber,
+              trackingUrl: auction.shipping.transaction?.trackingUrl,
+              commercialInvoiceUrl:
+                auction.shipping.transaction?.commercialInvoiceUrl,
+              purchasedAt: auction.shipping.transaction?.purchasedAt,
+              messages: auction.shipping.transaction?.messages,
+            },
+            tracking: {
+              status: auction.shipping.tracking?.status,
+              statusDetails: auction.shipping.tracking?.statusDetails,
+              estimatedDelivery: auction.shipping.tracking?.estimatedDelivery,
+              actualDelivery: auction.shipping.tracking?.actualDelivery,
+              trackingHistory: auction.shipping.tracking?.trackingHistory,
+              lastUpdated: auction.shipping.tracking?.lastUpdated,
+            },
+          }
+        : null,
+
+      // Also include payment info for reference
+      paymentMethod: auction.paymentMethod,
+      transactionId: auction.transactionId,
+
       // Payment & Invoice Info
       paymentStatus: auction.paymentStatus || "pending",
       paymentMethod: auction.paymentMethod,
@@ -2110,6 +2194,7 @@ const generateCongratulatoryMessage = (auction) => {
 };
 
 // Get seller's sold auctions
+// Get seller's sold auctions
 export const getSoldAuctions = async (req, res) => {
   try {
     const sellerId = req.user._id;
@@ -2136,7 +2221,6 @@ export const getSoldAuctions = async (req, res) => {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
-        // { category: { $regex: search, $options: "i" } },
         { categories: { $in: [new RegExp(search, "i")] } },
       ];
     }
@@ -2153,12 +2237,10 @@ export const getSoldAuctions = async (req, res) => {
         "username firstName lastName email phone company",
       )
       .sort({ endDate: -1 });
-    // .limit(limit * 1)
-    // .skip((page - 1) * limit);
 
     const total = await Auction.countDocuments(filter);
 
-    // Transform data to match frontend structure for seller's won auctions page
+    // Transform data to match frontend structure for seller's sold auctions page
     const transformedAuctions = auctions.map((auction) => {
       // Get all unique bidders with their highest bid
       const uniqueBidders = auction.bids.reduce((acc, bid) => {
@@ -2212,6 +2294,65 @@ export const getSoldAuctions = async (req, res) => {
         winningBid: auction.finalPrice || auction.currentPrice,
         startTime: auction.startDate,
         endTime: auction.endDate,
+        
+        // ✅ Add shipping tracking information - Complete schema structure
+        shipping: auction.shipping
+          ? {
+              rate: {
+                provider: auction.shipping.rate?.provider,
+                serviceLevel: {
+                  name: auction.shipping.rate?.serviceLevel?.name,
+                  token: auction.shipping.rate?.serviceLevel?.token,
+                  terms: auction.shipping.rate?.serviceLevel?.terms,
+                },
+                amount: auction.shipping.rate?.amount,
+                currency: auction.shipping.rate?.currency,
+                estimatedDays: auction.shipping.rate?.estimatedDays,
+              },
+              transaction: {
+                objectId: auction.shipping.transaction?.objectId,
+                status: auction.shipping.transaction?.status,
+                labelUrl: auction.shipping.transaction?.labelUrl,
+                trackingNumber: auction.shipping.transaction?.trackingNumber,
+                trackingUrl: auction.shipping.transaction?.trackingUrl,
+                commercialInvoiceUrl: auction.shipping.transaction?.commercialInvoiceUrl,
+                purchasedAt: auction.shipping.transaction?.purchasedAt,
+                messages: auction.shipping.transaction?.messages,
+              },
+              tracking: {
+                status: auction.shipping.tracking?.status,
+                statusDetails: auction.shipping.tracking?.statusDetails,
+                estimatedDelivery: auction.shipping.tracking?.estimatedDelivery,
+                actualDelivery: auction.shipping.tracking?.actualDelivery,
+                trackingHistory: auction.shipping.tracking?.trackingHistory,
+                lastUpdated: auction.shipping.tracking?.lastUpdated,
+              },
+            }
+          : null,
+
+        // ✅ Add payment info
+        paymentStatus: auction.paymentStatus || "pending",
+        paymentMethod: auction.paymentMethod,
+        paymentDate: auction.paymentDate,
+        transactionId: auction.transactionId,
+        hasInvoice: !!(auction.invoice && auction.invoice.url),
+        invoice: auction.invoice
+          ? {
+              url: auction.invoice.url,
+              filename: auction.invoice.filename,
+              uploadedAt: auction.invoice.uploadedAt,
+              uploadedBy: auction.invoice.uploadedBy
+                ? {
+                    _id: auction.invoice.uploadedBy._id.toString(),
+                    name:
+                      auction.invoice.uploadedBy.name ||
+                      auction.invoice.uploadedBy.username,
+                    email: auction.invoice.uploadedBy.email,
+                  }
+                : null,
+            }
+          : null,
+
         winner: auction.winner
           ? {
               id: auction.winner._id.toString(),
@@ -2225,7 +2366,7 @@ export const getSoldAuctions = async (req, res) => {
               phone: auction.winner.phone,
               company: auction.winner.company,
               address: auction.winner.address,
-              ip: "Not Available", // IP might not be stored
+              ip: "Not Available",
               bidHistory: auction.bids
                 .filter(
                   (bid) =>
@@ -2306,9 +2447,9 @@ export const lowerReservePrice = async (req, res) => {
         message: "Only verified sellers can lower reserve price",
       });
     }
-    
+
     // only active sellers can lower reserve price
-    if (seller.identificationStatus !== 'verified') {
+    if (seller.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only sellers with verified ID can lower reserve price",
@@ -2440,9 +2581,9 @@ export const buyNow = async (req, res) => {
         message: "Only verified buyers can buy items",
       });
     }
-    
+
     // only active buyers can buy items
-    if (buyer.identificationStatus !== 'verified') {
+    if (buyer.identificationStatus !== "verified") {
       return res.status(403).json({
         success: false,
         message: "Only buyers with verified ID can buy items",

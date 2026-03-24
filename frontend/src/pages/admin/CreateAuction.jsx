@@ -177,7 +177,15 @@ const CreateAuction = () => {
         mode: 'onChange',
         defaultValues: {
             auctionType: 'standard',
-            categories: []
+            categories: [],
+            parcel: {
+                weight: '',
+                length: '',
+                width: '',
+                height: '',
+                distanceUnit: 'in',
+                massUnit: 'lb'
+            }
         }
     });
 
@@ -186,6 +194,8 @@ const CreateAuction = () => {
     const endDate = watch('endDate');
     const selectedCategory = watch('category');
     const selectedParentSlug = watch('parentCategory');
+    const massUnit = watch('parcel.massUnit');
+    const distanceUnit = watch('parcel.distanceUnit');
 
     // Fetch parent categories on mount
     useEffect(() => {
@@ -441,6 +451,17 @@ const CreateAuction = () => {
                 notes: item.notes || ''
             }))));
 
+            if (auctionData.parcel) {
+                formData.append('parcel', JSON.stringify({
+                    weight: auctionData.parcel.weight,
+                    length: auctionData.parcel.length,
+                    width: auctionData.parcel.width,
+                    height: auctionData.parcel.height,
+                    distanceUnit: auctionData.parcel.distanceUnit,
+                    massUnit: auctionData.parcel.massUnit
+                }));
+            }
+
             // Pricing
             if (auctionData.auctionType === 'giveaway' || auctionData.auctionType === 'buy_now') {
                 formData.append('startPrice', 0);
@@ -459,7 +480,7 @@ const CreateAuction = () => {
                 }
                 if (auctionData.auctionType === 'standard' || auctionData.auctionType === 'reserve') {
                     formData.append('bidIncrement', auctionData.bidIncrement);
-                    if(auctionData.buyNowPrice){
+                    if (auctionData.buyNowPrice) {
                         formData.append('buyNowPrice', null);
                     }
                 }
@@ -717,6 +738,139 @@ const CreateAuction = () => {
                                             categoryFields={categoryFields}
                                             initialData={editingItemIndex !== null ? bundleItems[editingItemIndex] : null}
                                         />
+
+                                        {/* Parcel Details Section - Add this after video link field */}
+                                        <div className="border-t border-gray-200 pt-6 mb-6">
+                                            <h3 className="text-lg font-semibold mb-4 flex items-center">
+                                                <Package size={20} className="mr-2" />
+                                                Parcel Details
+                                            </h3>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                {/* Mass Unit */}
+                                                <div>
+                                                    <label htmlFor="massUnit" className="block text-sm font-medium text-secondary mb-1">
+                                                        Mass Unit
+                                                    </label>
+                                                    <select
+                                                        {...register('parcel.massUnit')}
+                                                        id="massUnit"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                    >
+                                                        <option value="lb">lb</option>
+                                                        <option value="kg">kg</option>
+                                                        <option value="g">g</option>
+                                                        <option value="oz">oz</option>
+                                                    </select>
+                                                </div>
+
+                                                {/* Distance Unit */}
+                                                <div>
+                                                    <label htmlFor="distanceUnit" className="block text-sm font-medium text-secondary mb-1">
+                                                        Distance Unit
+                                                    </label>
+                                                    <select
+                                                        {...register('parcel.distanceUnit')}
+                                                        id="distanceUnit"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                    >
+                                                        <option value="in">in</option>
+                                                        <option value="cm">cm</option>
+                                                        <option value="mm">mm</option>
+                                                        <option value="m">m</option>
+                                                        <option value="ft">ft</option>
+                                                    </select>
+                                                </div>
+
+                                                {/* Weight with its own unit dropdown */}
+                                                <div>
+                                                    <label htmlFor="weight" className="block text-sm font-medium text-secondary mb-1">
+                                                        Weight ({massUnit})
+                                                    </label>
+                                                    <input
+                                                        {...register('parcel.weight', {
+                                                            min: { value: 0, message: 'Weight must be positive' }
+                                                        })}
+                                                        id="weight"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                        placeholder="0.00"
+                                                    />
+                                                    {errors.parcel?.weight && (
+                                                        <p className="text-red-500 text-sm mt-1">{errors.parcel.weight.message}</p>
+                                                    )}
+                                                </div>
+
+                                                {/* Length with its own unit dropdown */}
+                                                <div>
+                                                    <label htmlFor="length" className="block text-sm font-medium text-secondary mb-1">
+                                                        Length ({distanceUnit})
+                                                    </label>
+                                                    <input
+                                                        {...register('parcel.length', {
+                                                            min: { value: 0, message: 'Length must be positive' }
+                                                        })}
+                                                        id="length"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                        placeholder="0.00"
+                                                    />
+                                                    {errors.parcel?.length && (
+                                                        <p className="text-red-500 text-sm mt-1">{errors.parcel.length.message}</p>
+                                                    )}
+                                                </div>
+
+                                                {/* Width */}
+                                                <div>
+                                                    <label htmlFor="width" className="block text-sm font-medium text-secondary mb-1">
+                                                        Width ({distanceUnit})
+                                                    </label>
+                                                    <input
+                                                        {...register('parcel.width', {
+                                                            min: { value: 0, message: 'Width must be positive' }
+                                                        })}
+                                                        id="width"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                        placeholder="0.00"
+                                                    />
+                                                    {errors.parcel?.width && (
+                                                        <p className="text-red-500 text-sm mt-1">{errors.parcel.width.message}</p>
+                                                    )}
+                                                </div>
+
+                                                {/* Height */}
+                                                <div>
+                                                    <label htmlFor="height" className="block text-sm font-medium text-secondary mb-1">
+                                                        Height ({distanceUnit})
+                                                    </label>
+                                                    <input
+                                                        {...register('parcel.height', {
+                                                            min: { value: 0, message: 'Height must be positive' }
+                                                        })}
+                                                        id="height"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                                                        placeholder="0.00"
+                                                    />
+                                                    {errors.parcel?.height && (
+                                                        <p className="text-red-500 text-sm mt-1">{errors.parcel.height.message}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Provide package dimensions for shipping cost calculation. Fields are optional.
+                                            </p>
+                                        </div>
 
                                         <div className="mb-6">
                                             <label htmlFor="description" className="block text-sm font-medium text-secondary mb-1">
@@ -1241,6 +1395,66 @@ const CreateAuction = () => {
                                                             )}
                                                             {watch('auctionType') === 'giveaway' && (
                                                                 <p className="text-green-600 font-medium">Free Giveaway</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Parcel Details Preview - Add this here */}
+                                                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                                                        <h4 className="font-medium mb-3 flex items-center gap-2">
+                                                            <Package size={18} />
+                                                            Parcel Details
+                                                        </h4>
+                                                        <div className="space-y-2">
+                                                            {watch('parcel.weight') && (
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <p className="text-xs text-secondary">Weight</p>
+                                                                    <p className="font-medium text-sm">
+                                                                        {watch('parcel.weight')} {watch('parcel.massUnit') || 'lb'}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+
+                                                            {watch('parcel.length') && watch('parcel.width') && watch('parcel.height') ? (
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <p className="text-xs text-secondary">Dimensions</p>
+                                                                    <p className="font-medium text-sm">
+                                                                        {watch('parcel.length')} × {watch('parcel.width')} × {watch('parcel.height')} {watch('parcel.distanceUnit') || 'in'}
+                                                                    </p>
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    {watch('parcel.length') && (
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            <p className="text-xs text-secondary">Length</p>
+                                                                            <p className="font-medium text-sm">
+                                                                                {watch('parcel.length')} {watch('parcel.distanceUnit') || 'in'}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {watch('parcel.width') && (
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            <p className="text-xs text-secondary">Width</p>
+                                                                            <p className="font-medium text-sm">
+                                                                                {watch('parcel.width')} {watch('parcel.distanceUnit') || 'in'}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {watch('parcel.height') && (
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            <p className="text-xs text-secondary">Height</p>
+                                                                            <p className="font-medium text-sm">
+                                                                                {watch('parcel.height')} {watch('parcel.distanceUnit') || 'in'}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            )}
+
+                                                            {!watch('parcel.weight') && !watch('parcel.length') && !watch('parcel.width') && !watch('parcel.height') && (
+                                                                <p className="text-gray-500 italic text-sm">No parcel details provided</p>
                                                             )}
                                                         </div>
                                                     </div>

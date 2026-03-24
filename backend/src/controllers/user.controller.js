@@ -73,6 +73,12 @@ export const registerUser = async (req, res) => {
       phone = "",
       image = "",
       paymentMethodId, // Only for bidders
+      street = "",
+      city = "",
+      county = "",
+      state = "",
+      postCode = "",
+      country
     } = req.body;
 
     // Get uploaded file from multer
@@ -195,6 +201,14 @@ export const registerUser = async (req, res) => {
       identificationDocument: identificationDocumentUrl,
       identificationDocumentPublicId: identificationDocumentPublicId,
       identificationStatus: identificationDocumentUrl ? "pending" : undefined,
+      address: {
+        street,
+        city,
+        county,
+        state,
+        postCode,
+        country
+      },
     };
 
     // Add payment details for bidders

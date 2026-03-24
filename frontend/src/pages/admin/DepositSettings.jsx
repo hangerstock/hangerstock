@@ -362,64 +362,6 @@ const DepositSettings = () => {
                                     </button>
                                 </div>
                             </div>
-
-                            {/* Information Cards */}
-                            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                                    <div className="flex items-start gap-4">
-                                        <div className="bg-blue-100 p-3 rounded-lg flex-shrink-0">
-                                            <AlertCircle size={24} className="text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-blue-800 mb-2">How It Works</h3>
-                                            <div className="space-y-2 text-sm text-blue-700">
-                                                <p>• Users pay deposit on their <span className="font-medium">first bid per auction</span></p>
-                                                <p>• Deposit is charged <span className="font-medium">immediately</span> and captured</p>
-                                                <p>• Admin keeps deposit in <span className="font-medium">all cases</span> (win/loss/cancellation)</p>
-                                                <p>• One deposit per auction per user</p>
-                                                <p>• No refunds - deposit is participation fee</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-                                    <div className="flex items-start gap-4">
-                                        <div className="bg-amber-100 p-3 rounded-lg flex-shrink-0">
-                                            <Shield size={24} className="text-amber-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-amber-800 mb-2">Important Notes</h3>
-                                            <div className="space-y-2 text-sm text-amber-700">
-                                                <p>• <span className="font-medium">Fixed deposit:</span> Flat fee regardless of bid amount</p>
-                                                <p>• <span className="font-medium">Percentage deposit:</span> % of bid amount with min/max limits</p>
-                                                <p>• Changes apply to <span className="font-medium">new bids only</span></p>
-                                                <p>• Users must have valid payment method saved</p>
-                                                <p>• Deposit is non-refundable per auction policy</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> */}
-
-                            {/* Stats Preview (Optional) */}
-                            {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                                    <p className="text-sm text-gray-500">Total Deposits Collected</p>
-                                    <p className="text-2xl font-bold">$0.00</p>
-                                    <p className="text-xs text-gray-400 mt-1">Coming soon</p>
-                                </div>
-                                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                                    <p className="text-sm text-gray-500">Active Deposits</p>
-                                    <p className="text-2xl font-bold">0</p>
-                                    <p className="text-xs text-gray-400 mt-1">Coming soon</p>
-                                </div>
-                                <div className="bg-white rounded-lg border border-gray-200 p-4">
-                                    <p className="text-sm text-gray-500">Avg. Deposit Amount</p>
-                                    <p className="text-2xl font-bold">$0.00</p>
-                                    <p className="text-xs text-gray-400 mt-1">Coming soon</p>
-                                </div>
-                            </div> */}
                         </div>
                     )}
                 </AdminContainer>

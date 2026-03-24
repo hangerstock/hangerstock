@@ -226,6 +226,98 @@ const auctionSchema = new Schema(
       },
     ],
 
+    // Parcel details for shipping
+    parcel: {
+      weight: Number,
+      length: Number,
+      width: Number,
+      height: Number,
+      distanceUnit: {
+        type: String,
+        default: "in",
+      },
+      massUnit: {
+        type: String,
+        default: "lb",
+      },
+    },
+
+    shipping: {
+      rate: {
+        objectId: String,
+        provider: String,
+        serviceLevel: {
+          name: String,
+          token: String,
+          terms: String,
+        },
+        amount: Number,
+        currency: String,
+        estimatedDays: Number,
+      },
+      transaction: {
+        objectId: String,
+        status: {
+          type: String,
+          enum: ["PURCHASED", "FAILED", "REFUNDED", "CANCELLED"],
+          default: "PURCHASED",
+        },
+        labelUrl: String,
+        trackingNumber: String,
+        trackingUrl: String,
+        commercialInvoiceUrl: String,
+        purchasedAt: Date,
+        messages: [
+          {
+            text: String,
+            code: String,
+          },
+        ],
+      },
+      tracking: {
+        status: {
+          type: String,
+          enum: [
+            "PRE_TRANSIT",
+            "TRANSIT",
+            "DELIVERED",
+            "RETURNED",
+            "FAILURE",
+            "UNKNOWN",
+          ],
+          default: "PRE_TRANSIT",
+        },
+        statusDetails: String,
+        estimatedDelivery: Date,
+        actualDelivery: Date,
+        trackingHistory: [
+          {
+            status: String,
+            statusDetails: String,
+            location: String,
+            timestamp: Date,
+          },
+        ],
+        lastUpdated: Date,
+      },
+      recipient: {
+        name: String,
+        street1: String,
+        street2: String,
+        city: String,
+        state: String,
+        zip: String,
+        country: String,
+        phone: String,
+        email: String,
+      },
+      metadata: {
+        labelPurchasedAt: Date,
+        labelPrintedAt: Date,
+        notifiedAt: Date,
+      },
+    },
+
     // Bidding
     bids: [
       {

@@ -17,9 +17,13 @@ import {
   paymentCompletedEmail,
   paymentCompletedSellerEmail,
   sendBulkAuctionNotifications,
+  sendShippingLabelToAdmin,
+  sendShippingLabelToBuyer,
+  sendShippingLabelToSeller,
 } from "../utils/nodemailer.js";
 import BidPayment from "../models/bidPayment.model.js";
 import Payout from "../models/payout.model.js";
+import shippo from "../utils/shippo.js";
 
 export const getAdminStats = async (req, res) => {
   try {
@@ -1369,6 +1373,21 @@ export const updateAuction = async (req, res) => {
     const finalSpecifications = new Map(Object.entries(aggregatedSpecs));
     // ========================================================================
 
+    // ========== PARCEL DATA HANDLING ==========
+    let parcelData = {};
+    if (req.body.parcel) {
+      try {
+        parcelData =
+          typeof req.body.parcel === "string"
+            ? JSON.parse(req.body.parcel)
+            : req.body.parcel;
+
+        console.log("Parcel data received:", parcelData);
+      } catch (e) {
+        console.error("Error parsing parcel data:", e);
+      }
+    }
+
     // Handle removed photos
     let finalPhotos = [...auction.photos];
     if (removedPhotos) {
@@ -1801,6 +1820,14 @@ export const updateAuction = async (req, res) => {
       description,
       specifications: finalSpecifications, // Use aggregated specs
       bundleItems: bundleItems, // Use processed bundle items with Maps
+      parcel: {
+        weight: parcelData.weight ? parseFloat(parcelData.weight) : undefined,
+        length: parcelData.length ? parseFloat(parcelData.length) : undefined,
+        width: parcelData.width ? parseFloat(parcelData.width) : undefined,
+        height: parcelData.height ? parseFloat(parcelData.height) : undefined,
+        distanceUnit: parcelData.distanceUnit || "in",
+        massUnit: parcelData.massUnit || "lb",
+      },
       location: location || "",
       videoLink: videoLink || "",
       startPrice: parseFloat(startPrice),
@@ -1977,6 +2004,12 @@ export const updatePaymentStatus = async (req, res) => {
       }
     }
 
+    // Find existing bid payment record
+    const bidPayment = await BidPayment.findOne({
+      auction: id,
+      bidder: auction.winner?._id,
+    });
+
     // Update payment status and related fields
     auction.paymentStatus = paymentStatus;
 
@@ -1993,9 +2026,181 @@ export const updatePaymentStatus = async (req, res) => {
       auction.transactionId = transactionId.trim();
     }
 
-    // Set payment date for completed status
+    // Update BidPayment record based on payment status
+    if (bidPayment) {
+      // Map admin payment status to BidPayment status
+      const statusMap = {
+        pending: "pending",
+        processing: "created",
+        completed: "succeeded",
+        failed: "processing_failed",
+        refunded: "canceled",
+        cancelled: "canceled",
+      };
+
+      bidPayment.status = statusMap[paymentStatus] || "created";
+
+      // Add notes if provided
+      if (notes) {
+        bidPayment.adminNotes = notes;
+      }
+
+      // Add transaction ID if provided
+      if (transactionId && transactionId.trim() !== "") {
+        bidPayment.transactionId = transactionId.trim();
+      }
+
+      // If payment is completed, set additional fields
+      if (paymentStatus === "completed") {
+        bidPayment.chargeSucceeded = true;
+        bidPayment.chargeAttempted = true;
+        bidPayment.paidAt = new Date();
+      }
+
+      await bidPayment.save();
+    } else {
+      // If no bid payment exists, create one (for manual admin updates)
+      const bidAmount = auction.finalPrice || auction.currentPrice;
+      const commissionAmount = auction.commissionAmount || 0;
+      const totalAmount = bidAmount + commissionAmount;
+
+      await BidPayment.create({
+        auction: id,
+        bidder: auction.winner?._id,
+        bidAmount,
+        commissionAmount,
+        totalAmount,
+        paymentIntentId: transactionId || null,
+        status: paymentStatus === "completed" ? "succeeded" : "pending",
+        type: "checkout_payment",
+        paymentMethod: paymentMethod || "bank_transfer",
+        chargeSucceeded: paymentStatus === "completed",
+        chargeAttempted: true,
+        paidAt: paymentStatus === "completed" ? new Date() : null,
+        adminNotes: notes || null,
+      });
+    }
+
+    // When payment is marked as completed
     if (paymentStatus === "completed") {
       auction.paymentDate = new Date();
+
+      // Auto-generate shipping label for bank transfer
+      if (paymentMethod === "bank_transfer" || paymentMethod === "bank") {
+        // Find the bid payment again to get rateId
+        const updatedBidPayment = await BidPayment.findOne({
+          auction: id,
+        });
+
+        if (updatedBidPayment?.rateId) {
+          try {
+            const transaction = await shippo.transactions.create({
+              rate: updatedBidPayment.rateId,
+              label_file_type: "PDF",
+              async: false,
+            });
+
+            // Store COMPLETE shipping data
+            auction.shipping = {
+              rate: {
+                objectId: updatedBidPayment.rateId,
+                provider: updatedBidPayment.rateProvider,
+                serviceLevel: {
+                  name: updatedBidPayment.rateServiceLevel,
+                  token: updatedBidPayment.rateServiceToken,
+                  terms: "",
+                },
+                amount: updatedBidPayment.rateAmount,
+                currency: updatedBidPayment.rateCurrency,
+                estimatedDays: updatedBidPayment.rateEstimatedDays,
+              },
+              transaction: {
+                objectId: transaction.objectId,
+                status: "PURCHASED",
+                labelUrl: transaction.labelUrl,
+                trackingNumber: transaction.trackingNumber,
+                trackingUrl: transaction.trackingUrlProvider,
+                commercialInvoiceUrl: transaction.commercialInvoiceUrl || null,
+                purchasedAt: new Date(),
+                messages: transaction.messages || [],
+              },
+              tracking: {
+                status: "PRE_TRANSIT",
+                statusDetails: "Label purchased, awaiting carrier pickup",
+                estimatedDelivery: updatedBidPayment.rateEstimatedDays
+                  ? new Date(
+                      Date.now() +
+                        updatedBidPayment.rateEstimatedDays *
+                          24 *
+                          60 *
+                          60 *
+                          1000,
+                    )
+                  : null,
+                actualDelivery: null,
+                trackingHistory: [],
+                lastUpdated: new Date(),
+              },
+            };
+            await auction.save();
+
+            // Update bid payment with shipping info
+            updatedBidPayment.shippingLabelGenerated = true;
+            updatedBidPayment.trackingNumber = transaction.trackingNumber;
+            await updatedBidPayment.save();
+
+            // Send label to seller
+            sendShippingLabelToSeller(auction.seller, auction, {
+              labelUrl: transaction.labelUrl,
+              trackingNumber: transaction.trackingNumber,
+              trackingUrl: transaction.trackingUrlProvider,
+              carrier: updatedBidPayment.rateProvider,
+              service: updatedBidPayment.rateServiceLevel,
+              estimatedDays: updatedBidPayment.rateEstimatedDays,
+              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
+              currency: updatedBidPayment.rateCurrency || "USD",
+              purchasedAt: new Date(),
+            }).catch((error) =>
+              console.error(`Error in sending seller label email:`, error),
+            );
+
+            // Send label to buyer
+            sendShippingLabelToBuyer(auction.winner, auction, {
+              labelUrl: transaction.labelUrl,
+              trackingNumber: transaction.trackingNumber,
+              trackingUrl: transaction.trackingUrlProvider,
+              carrier: updatedBidPayment.rateProvider,
+              service: updatedBidPayment.rateServiceLevel,
+              estimatedDays: updatedBidPayment.rateEstimatedDays,
+              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
+              currency: updatedBidPayment.rateCurrency || "USD",
+              purchasedAt: new Date(),
+            }).catch((error) =>
+              console.error(`Error in sending seller label email:`, error),
+            );
+
+            const adminUsers = await User.find({ userType: "admin" });
+
+            for (const admin of adminUsers) {
+              sendShippingLabelToAdmin(admin, auction, {
+              labelUrl: transaction.labelUrl,
+              trackingNumber: transaction.trackingNumber,
+              trackingUrl: transaction.trackingUrlProvider,
+              carrier: updatedBidPayment.rateProvider,
+              service: updatedBidPayment.rateServiceLevel,
+              estimatedDays: updatedBidPayment.rateEstimatedDays,
+              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
+              currency: updatedBidPayment.rateCurrency || "USD",
+              purchasedAt: new Date(),
+            }).catch((error) =>
+              console.error(`Error in sending admin label email:`, error),
+            );
+            }
+          } catch (shippingError) {
+            console.error("Auto-label generation failed:", shippingError);
+          }
+        }
+      }
     }
 
     // Attach invoice if uploaded
@@ -2015,6 +2220,7 @@ export const updatePaymentStatus = async (req, res) => {
       message: `Payment status updated to ${paymentStatus}`,
       data: {
         auction: updatedAuction,
+        bidPayment: bidPayment,
       },
     });
 
@@ -2045,6 +2251,100 @@ export const updatePaymentStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || "Failed to update payment status",
+    });
+  }
+};
+
+export const generateShippingLabelManually = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const auction = await Auction.findById(id)
+      .populate("seller", "email username firstName lastName")
+      .populate("winner", "email username firstName lastName address");
+
+    const bidPayment = await BidPayment.findOne({ auction: id });
+
+    if (!bidPayment?.rateId) {
+      return res.status(400).json({
+        success: false,
+        message: "No shipping rate found for this auction",
+      });
+    }
+
+    const transaction = await shippo.transactions.create({
+      rate: bidPayment.rateId,
+      label_file_type: "PDF",
+      async: false,
+    });
+
+    // ✅ Store COMPLETE shipping data
+    auction.shipping = {
+      rate: {
+        objectId: transaction.rate?.object_id || bidPayment.rateId,
+        provider: transaction.rate?.provider || "Unknown",
+        serviceLevel: {
+          name: transaction.rate?.servicelevel?.name || "Standard",
+          token: transaction.rate?.servicelevel?.token || "",
+          terms: transaction.rate?.servicelevel?.terms || "",
+        },
+        amount: parseFloat(transaction.rate?.amount) || 0,
+        currency: transaction.rate?.currency || "USD",
+        estimatedDays: transaction.rate?.estimated_days || null,
+      },
+      transaction: {
+        objectId: transaction.objectId,
+        status: "PURCHASED",
+        labelUrl: transaction.labelUrl,
+        trackingNumber: transaction.trackingNumber,
+        trackingUrl: transaction.trackingUrlProvider,
+        commercialInvoiceUrl: transaction.commercial_invoice_url || null,
+        purchasedAt: new Date(),
+        messages: transaction.messages || [],
+      },
+      tracking: {
+        status: "PRE_TRANSIT",
+        statusDetails: "Label purchased, awaiting carrier pickup",
+        estimatedDelivery: transaction.rate?.estimated_days
+          ? new Date(
+              Date.now() +
+                transaction.rate.estimated_days * 24 * 60 * 60 * 1000,
+            )
+          : null,
+        actualDelivery: null,
+        trackingHistory: [],
+        lastUpdated: new Date(),
+      },
+    };
+    await auction.save();
+
+    // Send label to seller
+    // await sendLabelToSeller(auction.seller.email, {
+    //     labelUrl: transaction.labelUrl,
+    //     trackingNumber: transaction.trackingNumber,
+    //     trackingUrl: transaction.trackingUrlProvider,
+    //     auctionTitle: auction.title,
+    //     carrier: transaction.rate?.provider,
+    //     service: transaction.rate?.servicelevel?.name,
+    //     estimatedDays: transaction.rate?.estimated_days
+    // });
+
+    return res.status(200).json({
+      success: true,
+      message: "Shipping label generated and sent to seller",
+      data: {
+        trackingNumber: transaction.trackingNumber,
+        trackingUrl: transaction.trackingUrlProvider,
+        labelUrl: transaction.labelUrl,
+        carrier: transaction.rate?.provider,
+        service: transaction.rate?.servicelevel?.name,
+      },
+    });
+  } catch (error) {
+    console.error("Manual label generation error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to generate shipping label",
     });
   }
 };

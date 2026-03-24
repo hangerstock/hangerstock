@@ -1181,15 +1181,12 @@ const sendAuctionWonEmail = async (auction) => {
                         <!-- Collection Information -->
                         <div class="collection-info">
                             <div class="collection-title">📦 ITEM COLLECTION</div>
-                            <p><strong>Important Information:</strong> Once your payment has been received and confirmed, you will receive a separate email containing the seller's contact details and the item location. You can then contact the seller directly to arrange collection or discuss delivery options.</p>
-                            <p style="margin-top: 10px; font-size: 14px; color: #856404;">
-                                ⚡ Please allow 24-48 hours for payment processing and verification before receiving the seller's details.
-                            </p>
+                            <p><strong>Important Information:</strong> Once your payment has been received and confirmed for the item and shipping, you will receive a tracking number and url. You can keep checking the shipping status using them.</p>
                         </div>
                         
                         <!-- Call to Action -->
                         <div class="cta-section">
-                            <p>Once payment is confirmed, our team will contact you within 24-48 hours.</p>
+                            <p>If you have any questions, please feel free to leave a message.</p>
                             <p style="font-size: 12px; color: #666;">
                                 Questions? Contact <a href="mailto:admin@HangerStock.com" class="support-link">admin@HangerStock.com</a>
                             </p>
@@ -2057,7 +2054,7 @@ const paymentCompletedEmail = async (user, auction, paymentAmount) => {
                         <div class="footer">
                             <p class="footer-text">This payment confirmation was sent by HangerStock.</p>
                             <p class="footer-text">© ${new Date().getFullYear()} HangerStock. All rights reserved.</p>
-                            <p class="footer-text">Need assistance? Contact us at ${process.env.EMAIL_USER || "support@HangerStock.com"}</p>
+                            <p class="footer-text">Need assistance? Contact us at ${process.env.EMAIL_USER || "admin@HangerStock.com"}</p>
                         </div>
                     </div>
                 </body>
@@ -2192,17 +2189,7 @@ const paymentCompletedSellerEmail = async (seller, auction, buyer) => {
                                     : ""
                                 }
                                 
-                                <p style="margin-top: 15px; font-size: 14px;"><strong>Next Step:</strong> Please reach out to the buyer within 24-48 hours to arrange collection or delivery of the item.</p>
-                            </div>
-                            
-                            <div class="next-steps">
-                                <div class="steps-title">
-                                    <span>📋 YOUR NEXT STEPS</span>
-                                </div>
-                                <p>1. <strong>Contact the buyer</strong> using the details provided above</p>
-                                <p>2. <strong>Arrange collection/delivery</strong> - Agree on a convenient time and method</p>
-                                <p>3. <strong>Prepare the item</strong> for handover with any relevant documentation</p>
-                                <p>4. <strong>Complete the handover</strong> and have the buyer sign any necessary documentation</p>
+                                <p style="margin-top: 15px; font-size: 14px;"><strong>Next Step:</strong> As we confirm your payment, you will receive a tracking url and a number which you can use to check the status of your item shipped.</p>
                             </div>
                             
                             <div class="dashboard-box">
@@ -2219,7 +2206,7 @@ const paymentCompletedSellerEmail = async (seller, auction, buyer) => {
                         <div class="footer">
                             <p class="footer-text">This payment confirmation was sent by HangerStock.</p>
                             <p class="footer-text">© ${new Date().getFullYear()} HangerStock. All rights reserved.</p>
-                            <p class="footer-text">Need assistance? Contact us at ${process.env.EMAIL_USER || "support@HangerStock.com"}</p>
+                            <p class="footer-text">Need assistance? Contact us at ${process.env.EMAIL_USER || "admin@HangerStock.com"}</p>
                         </div>
                     </div>
                 </body>
@@ -5256,19 +5243,11 @@ const offerAcceptedEmail = async (
                                 </div>
                             </div>
                             
-                            <div class="next-steps">
-                                <div class="steps-title">📝 NEXT STEPS TO COMPLETE PURCHASE</div>
-                                <p>1. <strong>Contact the seller</strong> within 24 hours to arrange payment method</p>
-                                <p>2. <strong>Complete payment</strong> as agreed with the seller</p>
-                                <p>3. <strong>Schedule collection/delivery</strong> of the item</p>
-                                <p>4. <strong>Complete handover</strong> and any required documentation</p>
-                            </div>
-                            
                             <div class="cta-box">
                                 <div class="cta-title">📦 COMPLETE YOUR PURCHASE</div>
                                 <p>Access your purchase details, download invoices, and contact the seller from your dashboard.</p>
                                 <p style="margin: 20px 0;">
-                                    <a href="${process.env.FRONTEND_URL}/buyer/offers/accepted" class="cta-button">VIEW PURCHASE</a>
+                                    <a href="${process.env.FRONTEND_URL}/bidder/offers" class="cta-button">VIEW OFFERS</a>
                                 </p>
                             </div>
                             
@@ -5489,7 +5468,7 @@ const offerRejectedEmail = async (
                                 </p>
                                 <div>
                                     <a href="${process.env.FRONTEND_URL}/auction/${auction._id}" class="secondary-button">MAKE NEW OFFER</a>
-                                    <a href="${process.env.FRONTEND_URL}/buyer/offers" class="secondary-button">MY OFFERS</a>
+                                    <a href="${process.env.FRONTEND_URL}/bidder/offers" class="secondary-button">MY OFFERS</a>
                                 </div>
                             </div>
                             
@@ -5858,6 +5837,633 @@ const payoutFailedEmail = async (seller, payout) => {
   }
 };
 
+const sendShippingLabelToSeller = async (seller, auction, shippingData) => {
+  try {
+    const {
+      labelUrl,
+      trackingNumber,
+      trackingUrl,
+      carrier,
+      service,
+      estimatedDays,
+      rateAmount,
+      currency,
+      purchasedAt
+    } = shippingData;
+
+    const info = await transporter.sendMail({
+      from: `"HangerStock" <${process.env.EMAIL_USER}>`,
+      to: seller?.email,
+      subject: `📦 Shipping Label Ready - ${auction?.title}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+                .header { background: #1e2d3b; padding: 25px 20px; text-align: center; }
+                .brand-name { color: #edcd1f; font-size: 28px; font-weight: bold; letter-spacing: 1px; margin: 10px 0; }
+                .tagline { color: #ffffff; font-size: 16px; margin: 5px 0 0 0; opacity: 0.9; }
+                .content { padding: 25px; }
+                .shipping-box { 
+                    background: #e8f4fd; 
+                    padding: 25px; 
+                    border-radius: 8px; 
+                    margin: 20px 0; 
+                    border: 2px solid #bbdefb;
+                    text-align: center;
+                }
+                .shipping-title { 
+                    font-size: 24px; 
+                    font-weight: bold; 
+                    color: #0d47a1;
+                    margin-bottom: 10px;
+                }
+                .label-box { 
+                    background: #ffffff; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    margin: 20px 0; 
+                    border: 1px solid #e0e0e0;
+                    text-align: center;
+                }
+                .tracking-box { 
+                    background: #f8f9fa; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    margin: 20px 0; 
+                    border-left: 4px solid #edcd1f;
+                }
+                .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e9ecef; }
+                .info-row:last-child { border-bottom: none; }
+                .info-label { color: #666; font-weight: 500; }
+                .info-value { font-weight: bold; color: #1e2d3b; }
+                .address-box { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffeaa7; }
+                .address-title { color: #856404; font-size: 16px; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+                .cta-button { 
+                    background: #1e2d3b; 
+                    color: #ffffff !important; 
+                    padding: 14px 30px; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    display: inline-block; 
+                    font-weight: bold; 
+                    font-size: 16px;
+                    margin: 10px 0;
+                }
+                .cta-button-secondary {
+                    background: #edcd1f;
+                    color: #1e2d3b !important;
+                    padding: 12px 25px;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    display: inline-block;
+                    font-weight: bold;
+                    font-size: 14px;
+                    margin: 10px 5px;
+                }
+                .instructions { background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #c8e6c9; }
+                .instructions-title { color: #2e7d32; font-size: 16px; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+                .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 13px; border-top: 1px solid #e9ecef; margin-top: 25px; }
+                .highlight { color: #edcd1f; font-weight: bold; }
+                .tracking-number { font-size: 20px; font-weight: bold; color: #0d47a1; letter-spacing: 1px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="brand-name">HangerStock</div>
+                    <div class="tagline">Fashion Closeout Auctions</div>
+                </div>
+                
+                <div class="content">
+                    <div class="shipping-box">
+                        <div class="shipping-title">📦 SHIPPING LABEL READY</div>
+                        <p style="font-size: 16px; color: #0d47a1;">Your shipping label has been generated and is ready to print!</p>
+                    </div>
+                    
+                    <p>Dear <span class="highlight">${seller?.firstName || seller?.username}</span>,</p>
+                    <p>Great news! A shipping label has been purchased for your sold item: <strong>"${auction?.title}"</strong>. The buyer has paid for shipping, so there's no cost to you.</p>
+                    
+                    <div class="label-box">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="font-size: 18px;">✈️ PRINT YOUR SHIPPING LABEL</strong>
+                        </div>
+                        <a href="${labelUrl}" target="_blank" class="cta-button" style="background: #2e7d32;">
+                            📄 DOWNLOAD LABEL (PDF)
+                        </a>
+                        <p style="margin-top: 15px; font-size: 12px; color: #666;">Click the button above to download and print your shipping label. Attach it securely to your package.</p>
+                    </div>
+                    
+                    <div class="tracking-box">
+                        <div class="info-row">
+                            <span class="info-label">🔢 Tracking Number:</span>
+                            <span class="info-value tracking-number">${trackingNumber}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚚 Carrier:</span>
+                            <span class="info-value">${carrier || 'Not specified'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📦 Service:</span>
+                            <span class="info-value">${service || 'Standard'}</span>
+                        </div>
+                        ${estimatedDays ? `
+                        <div class="info-row">
+                            <span class="info-label">⏱️ Estimated Delivery:</span>
+                            <span class="info-value">${estimatedDays} business days</span>
+                        </div>
+                        ` : ''}
+                        ${rateAmount ? `
+                        <div class="info-row">
+                            <span class="info-label">💰 Shipping Cost:</span>
+                            <span class="info-value">${formatCurrency(rateAmount)} ${currency || 'USD'} (Paid by buyer)</span>
+                        </div>
+                        ` : ''}
+                        ${purchasedAt ? `
+                        <div class="info-row">
+                            <span class="info-label">📅 Label Purchased:</span>
+                            <span class="info-value">${new Date(purchasedAt).toLocaleString()}</span>
+                        </div>
+                        ` : ''}
+                        <div class="info-row">
+                            <span class="info-label">🔗 Track Package:</span>
+                            <span class="info-value">
+                                <a href="${trackingUrl}" target="_blank" style="color: #1e2d3b;">Click to track</a>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="address-box">
+                        <div class="address-title">
+                            <span>📍 BUYER SHIPPING ADDRESS</span>
+                        </div>
+                        <p style="margin: 5px 0;"><strong>${auction?.winner?.firstName} ${auction?.winner?.lastName}</strong></p>
+                        ${auction?.winner?.address?.street ? `<p style="margin: 2px 0;">${auction.winner.address.street}</p>` : ''}
+                        ${auction?.winner?.address?.buildingNameNo ? `<p style="margin: 2px 0;">${auction.winner.address.buildingNameNo}</p>` : ''}
+                        <p style="margin: 2px 0;">
+                            ${auction?.winner?.address?.city || ''}${auction?.winner?.address?.city && auction?.winner?.address?.state ? ', ' : ''}
+                            ${auction?.winner?.address?.state || ''} ${auction?.winner?.address?.postCode || ''}
+                        </p>
+                        <p style="margin: 2px 0;">${auction?.winner?.address?.country || ''}</p>
+                        ${auction?.winner?.phone ? `<p style="margin-top: 10px;"><strong>Phone:</strong> ${auction.winner.phone}</p>` : ''}
+                    </div>
+                    
+                    <div class="instructions">
+                        <div class="instructions-title">
+                            <span>📋 SHIPPING INSTRUCTIONS</span>
+                        </div>
+                        <ol style="margin: 10px 0 10px 20px;">
+                            <li><strong>Print the label</strong> - Click the download button above and print on a standard printer (PDF format)</li>
+                            <li><strong>Package the item</strong> - Securely pack the item with appropriate padding/protection</li>
+                            <li><strong>Attach the label</strong> - Tape the printed label securely to the outside of the package</li>
+                            <li><strong>Drop off or schedule pickup</strong> - Take the package to your nearest ${carrier?.split(' ')[0] || 'carrier'} location or schedule a free pickup</li>
+                            <li><strong>Keep the receipt</strong> - Always get a drop-off receipt for proof of shipment</li>
+                        </ol>
+                        <p style="margin-top: 15px; font-size: 14px; background: #fff; padding: 10px; border-radius: 6px;">
+                            ⚠️ <strong>Important:</strong> Please ship faster to ensure timely delivery. 
+                            The buyer has already paid for this shipping label.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 25px 0;">
+                        <a href="${trackingUrl}" target="_blank" class="cta-button-secondary">🔍 Track Package</a>
+                        <a href="${process.env.FRONTEND_URL}/seller/auctions/sold" class="cta-button-secondary">📊 View Sold Items</a>
+                    </div>
+                    
+                    <p>If you have any questions or encounter issues with the label, please contact our support team immediately.</p>
+                    
+                    <hr style="margin: 25px 0; border: none; border-top: 1px solid #e9ecef;">
+                    
+                    <p style="font-size: 14px; color: #666;">Need assistance? Reply to this email or contact us at ${process.env.EMAIL_USER || "admin@HangerStock.com"}</p>
+                </div>
+                
+                <div class="footer">
+                    <p class="footer-text">This shipping label was generated by HangerStock.</p>
+                    <p class="footer-text">© ${new Date().getFullYear()} HangerStock. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+      `,
+    });
+
+    console.log(`✅ Shipping label email sent to seller ${seller?.email}`);
+    return !!info;
+  } catch (error) {
+    console.error(`❌ Failed to send shipping label email:`, error);
+    return false;
+  }
+};
+
+const sendShippingLabelToBuyer = async (buyer, auction, shippingData) => {
+    try {
+        const {
+            labelUrl,
+            trackingNumber,
+            trackingUrl,
+            carrier,
+            service,
+            estimatedDays,
+            rateAmount,
+            currency,
+            purchasedAt
+        } = shippingData;
+
+        const info = await transporter.sendMail({
+            from: `"HangerStock" <${process.env.EMAIL_USER}>`,
+            to: buyer?.email,
+            subject: `📦 Your Item Has Been Shipped - ${auction?.title}`,
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+                        .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+                        .header { background: #1e2d3b; padding: 25px 20px; text-align: center; }
+                        .brand-name { color: #edcd1f; font-size: 28px; font-weight: bold; letter-spacing: 1px; margin: 10px 0; }
+                        .tagline { color: #ffffff; font-size: 16px; margin: 5px 0 0 0; opacity: 0.9; }
+                        .content { padding: 25px; }
+                        .shipped-box { 
+                            background: #d4edda; 
+                            padding: 25px; 
+                            border-radius: 8px; 
+                            margin: 20px 0; 
+                            border: 2px solid #c3e6cb;
+                            text-align: center;
+                        }
+                        .shipped-title { 
+                            font-size: 24px; 
+                            font-weight: bold; 
+                            color: #155724;
+                            margin-bottom: 10px;
+                        }
+                        .tracking-box { 
+                            background: #f8f9fa; 
+                            padding: 20px; 
+                            border-radius: 8px; 
+                            margin: 20px 0; 
+                            border-left: 4px solid #edcd1f;
+                        }
+                        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e9ecef; }
+                        .info-row:last-child { border-bottom: none; }
+                        .info-label { color: #666; font-weight: 500; }
+                        .info-value { font-weight: bold; color: #1e2d3b; }
+                        .tracking-number { font-size: 20px; font-weight: bold; color: #0d47a1; letter-spacing: 1px; }
+                        .delivery-timeline { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                        .status-badge { 
+                            background: #2e7d32; 
+                            color: white; 
+                            padding: 5px 15px; 
+                            border-radius: 20px; 
+                            display: inline-block;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        .cta-button { 
+                            background: #1e2d3b; 
+                            color: #ffffff !important; 
+                            padding: 14px 30px; 
+                            text-decoration: none; 
+                            border-radius: 6px; 
+                            display: inline-block; 
+                            font-weight: bold; 
+                            font-size: 16px;
+                            margin: 10px 0;
+                        }
+                        .cta-button-secondary {
+                            background: #edcd1f;
+                            color: #1e2d3b !important;
+                            padding: 12px 25px;
+                            text-decoration: none;
+                            border-radius: 6px;
+                            display: inline-block;
+                            font-weight: bold;
+                            font-size: 14px;
+                            margin: 10px 5px;
+                        }
+                        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 13px; border-top: 1px solid #e9ecef; margin-top: 25px; }
+                        .highlight { color: #edcd1f; font-weight: bold; }
+                        .shipping-summary { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffeaa7; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="brand-name">HangerStock</div>
+                            <div class="tagline">Fashion Closeout Auctions</div>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="shipped-box">
+                                <div class="shipped-title">📦 YOUR ITEM IS ON THE WAY!</div>
+                                <p style="font-size: 16px; color: #155724;">Your package has been shipped and is on its way to you!</p>
+                            </div>
+                            
+                            <p>Dear <span class="highlight">${buyer?.firstName || buyer?.username}</span>,</p>
+                            <p>Great news! Your item <strong>"${auction?.title}"</strong> has been shipped by the seller. You can track its journey using the tracking information below.</p>
+                            
+                            <div class="tracking-box">
+                                <h3 style="margin-bottom: 15px;">🔍 Tracking Information</h3>
+                                <div class="info-row">
+                                    <span class="info-label">🔢 Tracking Number:</span>
+                                    <span class="info-value tracking-number">${trackingNumber}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">🚚 Carrier:</span>
+                                    <span class="info-value">${carrier || 'Not specified'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">📦 Service:</span>
+                                    <span class="info-value">${service || 'Standard'}</span>
+                                </div>
+                                ${estimatedDays ? `
+                                <div class="info-row">
+                                    <span class="info-label">⏱️ Estimated Delivery:</span>
+                                    <span class="info-value">${estimatedDays} business days</span>
+                                </div>
+                                ` : ''}
+                                ${purchasedAt ? `
+                                <div class="info-row">
+                                    <span class="info-label">📅 Shipped On:</span>
+                                    <span class="info-value">${new Date(purchasedAt).toLocaleString()}</span>
+                                </div>
+                                ` : ''}
+                                <div class="info-row">
+                                    <span class="info-label">🔗 Track Package:</span>
+                                    <span class="info-value">
+                                        <a href="${trackingUrl}" target="_blank" style="color: #1e2d3b; font-weight: bold;">Click to track your shipment</a>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="delivery-timeline">
+                                <div class="status-badge" style="margin-bottom: 10px;">🚚 IN TRANSIT</div>
+                                <p style="margin-top: 10px;">Your package is on its way. Track it for the most up-to-date delivery status.</p>
+                                ${estimatedDays ? `<p style="margin-top: 5px; font-size: 14px;"><strong>Expected Delivery:</strong> Within ${estimatedDays} business days</p>` : ''}
+                            </div>
+                            
+                            <div class="shipping-summary">
+                                <h3 style="margin-bottom: 10px;">📋 Shipping Summary</h3>
+                                <div class="info-row">
+                                    <span class="info-label">Item:</span>
+                                    <span class="info-value">${auction?.title}</span>
+                                </div>
+                                ${rateAmount ? `
+                                <div class="info-row">
+                                    <span class="info-label">Shipping Cost:</span>
+                                    <span class="info-value">${formatCurrency(rateAmount)} ${currency || 'USD'} (Included in your payment)</span>
+                                </div>
+                                ` : ''}
+                                <div class="info-row">
+                                    <span class="info-label">Seller:</span>
+                                    <span class="info-value">${auction?.seller?.firstName} ${auction?.seller?.lastName}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 25px 0;">
+                                <a href="${trackingUrl}" target="_blank" class="cta-button">🔍 TRACK YOUR PACKAGE</a>
+                                <a href="${process.env.FRONTEND_URL}/bidder/auctions/won" class="cta-button-secondary">📊 VIEW WON AUCTIONS</a>
+                            </div>
+                            
+                            <p>We're excited for you to receive your item! If you have any questions about your shipment, please don't hesitate to contact our support team.</p>
+                            
+                            <hr style="margin: 25px 0; border: none; border-top: 1px solid #e9ecef;">
+                            
+                            <p style="font-size: 14px; color: #666;">Need assistance? Reply to this email or contact us at ${process.env.EMAIL_USER || "admin@HangerStock.com"}</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p class="footer-text">This shipping confirmation was sent by HangerStock.</p>
+                            <p class="footer-text">© ${new Date().getFullYear()} HangerStock. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `
+        });
+
+        console.log(`✅ Shipping confirmation email sent to buyer ${buyer?.email}`);
+        return !!info;
+    } catch (error) {
+        console.error(`❌ Failed to send shipping confirmation email:`, error);
+        return false;
+    }
+};
+
+const sendShippingLabelToAdmin = async (admin, auction, shippingData) => {
+    try {
+        const {
+            labelUrl,
+            trackingNumber,
+            trackingUrl,
+            carrier,
+            service,
+            estimatedDays,
+            rateAmount,
+            currency,
+            purchasedAt
+        } = shippingData;
+
+        const info = await transporter.sendMail({
+            from: `"HangerStock" <${process.env.EMAIL_USER}>`,
+            to: admin?.email,
+            subject: `📦 Shipping Label Generated - ${auction?.title}`,
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+                        .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+                        .header { background: #1e2d3b; padding: 25px 20px; text-align: center; }
+                        .brand-name { color: #edcd1f; font-size: 28px; font-weight: bold; letter-spacing: 1px; margin: 10px 0; }
+                        .tagline { color: #ffffff; font-size: 16px; margin: 5px 0 0 0; opacity: 0.9; }
+                        .content { padding: 25px; }
+                        .admin-badge { 
+                            background: #1e2d3b; 
+                            color: #edcd1f;
+                            padding: 5px 15px; 
+                            border-radius: 20px; 
+                            display: inline-block;
+                            font-size: 12px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                        }
+                        .label-box { 
+                            background: #e8f4fd; 
+                            padding: 25px; 
+                            border-radius: 8px; 
+                            margin: 20px 0; 
+                            border: 2px solid #bbdefb;
+                            text-align: center;
+                        }
+                        .tracking-box { 
+                            background: #f8f9fa; 
+                            padding: 20px; 
+                            border-radius: 8px; 
+                            margin: 20px 0; 
+                            border-left: 4px solid #edcd1f;
+                        }
+                        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e9ecef; }
+                        .info-row:last-child { border-bottom: none; }
+                        .info-label { color: #666; font-weight: 500; }
+                        .info-value { font-weight: bold; color: #1e2d3b; }
+                        .tracking-number { font-size: 18px; font-weight: bold; color: #0d47a1; letter-spacing: 1px; }
+                        .auction-summary { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                        .cta-button { 
+                            background: #1e2d3b; 
+                            color: #ffffff !important; 
+                            padding: 12px 25px; 
+                            text-decoration: none; 
+                            border-radius: 6px; 
+                            display: inline-block; 
+                            font-weight: bold; 
+                            font-size: 14px;
+                            margin: 10px 5px;
+                        }
+                        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 13px; border-top: 1px solid #e9ecef; margin-top: 25px; }
+                        .highlight { color: #edcd1f; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="brand-name">HangerStock</div>
+                            <div class="tagline">Admin Notification</div>
+                        </div>
+                        
+                        <div class="content">
+                            <div style="text-align: center;">
+                                <div class="admin-badge">ADMIN NOTIFICATION</div>
+                            </div>
+                            
+                            <h2>📦 Shipping Label Generated</h2>
+                            <p>Dear <span class="highlight">${admin?.firstName || 'Admin'}</span>,</p>
+                            <p>A shipping label has been generated for auction: <strong>"${auction?.title}"</strong>.</p>
+                            
+                            <div class="label-box">
+                                <a href="${labelUrl}" target="_blank" class="cta-button" style="background: #2e7d32;">📄 VIEW SHIPPING LABEL (PDF)</a>
+                                <p style="margin-top: 10px; font-size: 12px;">Click to download or preview the shipping label</p>
+                            </div>
+                            
+                            <div class="tracking-box">
+                                <h3 style="margin-bottom: 15px;">🔍 Tracking Details</h3>
+                                <div class="info-row">
+                                    <span class="info-label">🔢 Tracking Number:</span>
+                                    <span class="info-value tracking-number">${trackingNumber}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">🚚 Carrier:</span>
+                                    <span class="info-value">${carrier || 'Not specified'}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">📦 Service:</span>
+                                    <span class="info-value">${service || 'Standard'}</span>
+                                </div>
+                                ${estimatedDays ? `
+                                <div class="info-row">
+                                    <span class="info-label">⏱️ Estimated Delivery:</span>
+                                    <span class="info-value">${estimatedDays} business days</span>
+                                </div>
+                                ` : ''}
+                                ${rateAmount ? `
+                                <div class="info-row">
+                                    <span class="info-label">💰 Shipping Cost:</span>
+                                    <span class="info-value">${formatCurrency(rateAmount)} ${currency || 'USD'}</span>
+                                </div>
+                                ` : ''}
+                                ${purchasedAt ? `
+                                <div class="info-row">
+                                    <span class="info-label">📅 Label Purchased:</span>
+                                    <span class="info-value">${new Date(purchasedAt).toLocaleString()}</span>
+                                </div>
+                                ` : ''}
+                                <div class="info-row">
+                                    <span class="info-label">🔗 Track Package:</span>
+                                    <span class="info-value">
+                                        <a href="${trackingUrl}" target="_blank" style="color: #1e2d3b;">${trackingUrl}</a>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="auction-summary">
+                                <h3 style="margin-bottom: 15px;">📋 Auction Summary</h3>
+                                <div class="info-row">
+                                    <span class="info-label">Auction ID:</span>
+                                    <span class="info-value">${auction?._id}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Title:</span>
+                                    <span class="info-value">${auction?.title}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Final Price:</span>
+                                    <span class="info-value">${formatCurrency(auction?.finalPrice || auction?.currentPrice)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Commission:</span>
+                                    <span class="info-value">${formatCurrency(auction?.commissionAmount || 0)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Total with Shipping:</span>
+                                    <span class="info-value">${formatCurrency((auction?.finalPrice || auction?.currentPrice) + (auction?.commissionAmount || 0) + (rateAmount || 0))}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <h3>👥 Party Details</h3>
+                                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                    <h4 style="margin-bottom: 10px;">Seller</h4>
+                                    <p><strong>Name:</strong> ${auction?.seller?.firstName} ${auction?.seller?.lastName}</p>
+                                    <p><strong>Email:</strong> ${auction?.seller?.email}</p>
+                                    <p><strong>Phone:</strong> ${auction?.seller?.phone || 'Not provided'}</p>
+                                </div>
+                                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px;">
+                                    <h4 style="margin-bottom: 10px;">Buyer</h4>
+                                    <p><strong>Name:</strong> ${auction?.winner?.firstName} ${auction?.winner?.lastName}</p>
+                                    <p><strong>Email:</strong> ${auction?.winner?.email}</p>
+                                    <p><strong>Phone:</strong> ${auction?.winner?.phone || 'Not provided'}</p>
+                                    ${auction?.winner?.address ? `
+                                    <p><strong>Shipping Address:</strong><br>
+                                    ${auction.winner.address.street || ''}<br>
+                                    ${auction.winner.address.city || ''} ${auction.winner.address.state || ''} ${auction.winner.address.postCode || ''}<br>
+                                    ${auction.winner.address.country || ''}
+                                    </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin: 25px 0;">
+                                <a href="${process.env.FRONTEND_URL}/admin/auctions/all" class="cta-button">🔧 VIEW AUCTIONS</a>
+                                <a href="${trackingUrl}" target="_blank" class="cta-button">🔍 TRACK SHIPMENT</a>
+                            </div>
+                            
+                            <hr style="margin: 25px 0; border: none; border-top: 1px solid #e9ecef;">
+                            
+                            <p style="font-size: 14px; color: #666;">This is an automated notification from HangerStock. The shipping label has been charged to the platform account as per the shipping funds collected from the buyer.</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p class="footer-text">HangerStock Admin Notification | Shipping Label Generated</p>
+                            <p class="footer-text">© ${new Date().getFullYear()} HangerStock. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `
+        });
+
+        console.log(`✅ Shipping label email sent to admin ${admin?.email}`);
+        return !!info;
+    } catch (error) {
+        console.error(`❌ Failed to send shipping label email to admin:`, error);
+        return false;
+    }
+};
+
 export {
   contactEmail, //tested
   contactConfirmationEmail, //tested
@@ -5893,4 +6499,7 @@ export {
   payoutInitiatedEmail,
   payoutCompletedEmail,
   payoutFailedEmail,
+  sendShippingLabelToSeller,
+  sendShippingLabelToBuyer,
+  sendShippingLabelToAdmin,
 };

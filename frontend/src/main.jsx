@@ -15,6 +15,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const Auctions = lazy(() => import('./pages/Auctions'));
+const Checkout = lazy(() => import('./pages/Checkout'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfUse = lazy(() => import('./pages/TermsOfUse'));
 const PaymentRefundPolicy = lazy(() => import('./pages/PaymentRefundPolicy'));
@@ -82,6 +83,7 @@ const AdminAllOffers = lazy(() => import('./pages/admin/AllOffers'));
 const Transactions = lazy(() => import('./pages/admin/Transactions'));
 const Categories = lazy(() => import('./pages/admin/Categories'));
 const AdminPayouts = lazy(() => import('./pages/admin/Payouts'));
+const AdminPayoutMethods = lazy(() => import('./pages/admin/PayoutMethods'));
 
 createRoot(document.getElementById('root')).render(
     //<StrictMode>
@@ -106,6 +108,8 @@ createRoot(document.getElementById('root')).render(
                             <Route path='/verify-email/:token' element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><VerifyEmail /></Suspense>} />
 
                             <Route path='/auctions' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><Auctions /></Suspense>} />
+
+                            <Route path='/checkout/:auctionId' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><Checkout /></Suspense>} />
 
                             <Route path='/auction/:id' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><SingleAuction /></Suspense>} />
 
@@ -586,6 +590,16 @@ createRoot(document.getElementById('root')).render(
                                 element={
                                     <Suspense fallback={<LoadingSpinner height={'750px'} />}>
                                         <AdminPayouts />
+                                    </Suspense>
+                                }
+                            />
+
+                            {/* Admin Payout Methods */}
+                            <Route
+                                path='/admin/payout-methods'
+                                element={
+                                    <Suspense fallback={<LoadingSpinner height={'750px'} />}>
+                                        <AdminPayoutMethods />
                                     </Suspense>
                                 }
                             />

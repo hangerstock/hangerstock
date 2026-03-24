@@ -148,7 +148,7 @@ const BundleManifest = ({ bundleItems, categoryFields, auction }) => {
                                     </td>
                                     {categoryFields.sort((a, b) => a.order - b.order).map(field => (
                                         <td key={field.name} className="px-4 py-3">
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1 capitalize">
                                                 {field.name === 'color' && item.specifications?.[field.name] && (
                                                     <span
                                                         className="w-3 h-3 rounded-full border border-gray-300"

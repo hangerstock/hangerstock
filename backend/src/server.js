@@ -23,6 +23,8 @@ import depositSettingsRouter from "./routes/depositSettings.route.js";
 import paymentRouter from "./routes/payment.route.js";
 import payoutRouter from "./routes/payout.route.js";
 import buyNowPaymentRouter from "./routes/buyNowPayment.route.js";
+import shippingRouter from "./routes/shipping.route.js";
+import checkoutRouter from "./routes/checkout.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,6 +82,8 @@ app.use('/api/v1/otp', otpRouter);
 app.use('/api/v1/payments', paymentRouter);
 app.use("/api/v1/payouts", payoutRouter);
 app.use("/api/v1/buy-now-payment", buyNowPaymentRouter);
+app.use("/api/v1/shipping", shippingRouter);
+app.use("/api/v1/checkout", checkoutRouter);
 
 // 404 handler - SIMPLIFIED VERSION
 app.use((req, res, next) => {

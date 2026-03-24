@@ -105,7 +105,7 @@ const CardSection = () => {
 
     return (
         <div className="space-y-4 border-t border-gray-200 dark:border-bg-primary-light pt-6 mt-6">
-            <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark">Payment Information</h3>
+            <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark">Payment Information <span className='text-red-600'>*</span></h3>
             <p className="text-sm text-text-secondary dark:text-text-secondary-dark">
                 {otherData?.brandName} requires a credit card to bid. There is no charge to register.
                 We will only authorize that your card is valid.
@@ -199,7 +199,7 @@ const PhoneVerificationStep = ({ onVerified, initialPhone }) => {
     const handleVerifyOTP = async (otp) => {
         const cleanedPhone = phoneNumber.replace(/\D/g, '');
         const fullPhoneNumber = `${selectedCountry.dialCode}${cleanedPhone}`;
-        
+
         setIsLoading(true);
         try {
             await axios.post(`${import.meta.env.VITE_DOMAIN_URL}/api/v1/otp/verify`, { phone: fullPhoneNumber, otp });
@@ -285,10 +285,18 @@ const PhoneVerificationStep = ({ onVerified, initialPhone }) => {
                             <input
                                 type="tel"
                                 value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))} // Only digits
+                                onChange={(e) => {
+                                    // Only allow digits and limit to 15 characters
+                                    const cleaned = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                    setPhoneNumber(cleaned);
+                                }}
                                 placeholder="Phone number"
+                                maxLength={15}
                                 className="w-full p-3 border border-gray-300 dark:border-bg-primary-light bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark rounded-lg focus:ring-2 focus:ring-secondary-dark focus:border-transparent"
                             />
+                            {phoneNumber && phoneNumber.length < 4 && (
+                                <p className="text-red-500 text-xs mt-1">Phone number must be at least 4 digits</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -333,8 +341,10 @@ const Register = () => {
     const [userType, setUserType] = useState('');
     const navigate = useNavigate();
     const { setUser, user } = useAuth();
-    const countriesAPI = useCountryStates();
+    const { useCountries, useStatesByCountry } = useCountryStates();
     const [countries, setCountries] = useState([]);
+    const [states, setStates] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState('');
 
     const [identificationDocument, setIdentificationDocument] = useState(null);
     const [identificationDocumentPreview, setIdentificationDocumentPreview] = useState(null);
@@ -343,7 +353,7 @@ const Register = () => {
 
     useEffect(() => {
         const fetchCountries = async () => {
-            setCountries(await countriesAPI());
+            setCountries(await useCountries());
         };
         fetchCountries();
     }, []);
@@ -367,7 +377,12 @@ const Register = () => {
             firstName: '',
             lastName: '',
             country: '',
-            userType: ''
+            userType: '',
+            street: '',
+            city: '',
+            state: '',
+            postCode: '',
+            country: '',
         }
     });
 
@@ -382,6 +397,24 @@ const Register = () => {
         setVerifiedPhone(phone);
         setValue('phone', phone); // Set phone in form
         setCurrentStep(2); // Move to registration form
+    };
+
+    const handleCountryChange = async (e) => {
+        const countryCode = e.target.value;
+        setSelectedCountry(countryCode);
+        setValue('country', countryCode);
+        setValue('state', ''); // Reset state when country changes
+        setStates([]); // Clear states
+
+        if (countryCode) {
+            try {
+                const statesList = await useStatesByCountry(countryCode);
+                setStates(statesList);
+            } catch (error) {
+                console.error('Error fetching states:', error);
+                toast.error('Failed to load states');
+            }
+        }
     };
 
     const handleIdentificationDocumentChange = (e) => {
@@ -457,6 +490,11 @@ const Register = () => {
             formData.append('countryCode', registrationData.country);
             formData.append('countryName', countries.find(c => c.code === registrationData.country)?.name || registrationData.country);
             formData.append('userType', registrationData.userType);
+            formData.append('street', registrationData.street);
+            formData.append('city', registrationData.city);
+            formData.append('postCode', registrationData.postCode);
+            formData.append('state', registrationData.state);
+            formData.append('country', countries.find(c => c.code === registrationData.country)?.name || registrationData.country);
 
             // Handle bidder card verification
             if (registrationData.userType === 'bidder') {
@@ -594,7 +632,7 @@ const Register = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                            Email
+                                            Email <span className='text-red-600'>*</span>
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -621,7 +659,7 @@ const Register = () => {
                                     <div className="grid grid-cols-1 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                                Password
+                                                Password <span className='text-red-600'>*</span>
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -659,7 +697,7 @@ const Register = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                            First name
+                                            First name <span className='text-red-600'>*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -677,7 +715,7 @@ const Register = () => {
 
                                     <div>
                                         <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                            Last name
+                                            Last name <span className='text-red-600'>*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -695,9 +733,14 @@ const Register = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
+
+                                </div>
+
+                                {/* Add new address fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-1">
                                         <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                            Username
+                                            Username <span className='text-red-600'>*</span>
                                         </label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -722,26 +765,126 @@ const Register = () => {
                                         )}
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-text-secondary dark:text-text-secondary-dark mb-2">
-                                            Country of residence
+                                    {/* Country field */}
+                                    <div className="md:col-span-1">
+                                        <div className={`${errors.country && 'mb-3'}`}>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Country <span className='text-red-600'>*</span>
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    {...register('country', { required: 'Country is required' })}
+                                                    onChange={handleCountryChange}
+                                                    value={selectedCountry}
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
+                                                >
+                                                    <option value="">Select country</option>
+                                                    {countries.map(country => (
+                                                        <option key={country.code} value={country.code}>
+                                                            {country.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown size={20} className="absolute right-3 top-3 text-gray-400 pointer-events-none" />
+                                                {errors.country && (
+                                                    <p className="text-red-500 text-sm mt-1 absolute">{errors.country.message}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* State field */}
+                                    <div className={`${errors.state && 'mb-3'}`}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            State <span className='text-red-600'>*</span>
                                         </label>
                                         <div className="relative">
-                                            <select
-                                                {...register('country', { required: 'Country is required' })}
-                                                className="w-full p-3 border border-gray-300 dark:border-bg-primary-light bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark rounded-lg focus:ring-2 focus:ring-secondary-darktext-bg-secondary-dark dark:focus:ring-gray-500 focus:border-transparent appearance-none"
-                                            >
-                                                <option value="">Select country</option>
-                                                {countries.map(country => (
-                                                    <option key={country.code} value={country.code}>
-                                                        {country.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown size={20} className="absolute right-3 top-3 text-bg-secondary-dark dark:text-gray-600 pointer-events-none" />
+                                            {states.length > 0 ? (
+                                                <select
+                                                    {...register('state', {
+                                                        required: selectedCountry ? 'State is required' : false
+                                                    })}
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
+                                                    disabled={!selectedCountry}
+                                                >
+                                                    <option value="">Select state</option>
+                                                    {states.map(state => (
+                                                        <option key={state.id || state.code} value={state.name}>
+                                                            {state.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    {...register('state', {
+                                                        required: selectedCountry ? 'State is required' : false
+                                                    })}
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                                    placeholder={selectedCountry ? "Enter state" : "Select a country first"}
+                                                    disabled={!selectedCountry}
+                                                />
+                                            )}
+                                            <ChevronDown size={20} className="absolute right-3 top-3 text-gray-400 pointer-events-none" />
+                                            {errors.state && (
+                                                <p className="text-red-500 text-sm mt-1 absolute">{errors.state.message}</p>
+                                            )}
                                         </div>
-                                        {errors.country && (
-                                            <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
+                                    </div>
+
+                                    {/* Street field - spans full width on mobile, half on desktop */}
+                                    <div className="md:col-span-1">
+                                        <div className={`${errors.street && 'mb-3'}`}>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Street <span className='text-red-600'>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                {...register('street', {
+                                                    required: 'Street is required'
+                                                })}
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                                placeholder="Street address"
+                                            />
+                                            {errors.street && (
+                                                <p className="text-red-500 text-sm mt-1 absolute">{errors.street.message}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* City field */}
+                                    <div className={`${errors.city && 'mb-3'}`}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            City <span className='text-red-600'>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('city', {
+                                                required: 'City is required'
+                                            })}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                            placeholder="City"
+                                        />
+                                        {errors.city && (
+                                            <p className="text-red-500 text-sm mt-1 absolute">{errors.city.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Post Code field */}
+                                    <div className={`${errors.postCode && 'mb-3'}`}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Post Code <span className='text-red-600'>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('postCode', {
+                                                required: 'Post code is required'
+                                            })}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                            placeholder="Postal code"
+                                        />
+                                        {errors.postCode && (
+                                            <p className="text-red-500 text-sm mt-1 absolute">{errors.postCode.message}</p>
                                         )}
                                     </div>
                                 </div>
@@ -752,6 +895,7 @@ const Register = () => {
                                 <label className="text-sm font-medium leading-none text-text-secondary dark:text-text-secondary-dark flex items-center gap-2 mb-4">
                                     <User size={20} />
                                     <span>User Type</span>
+                                    <span className='text-red-600'>*</span>
                                 </label>
 
                                 <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch gap-3 my-2">
@@ -800,7 +944,7 @@ const Register = () => {
 
                             {/* ID Verification Section */}
                             <div id="id-verification-section" className="border-t border-gray-200 dark:border-bg-primary-light pt-6">
-                                <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">Identity Verification</h3>
+                                <h3 className="text-lg font-semibold text-text-primary dark:text-text-primary-dark mb-4">Identity Verification <span className='text-red-600'>*</span></h3>
                                 <p className="text-sm text-text-secondary dark:text-text-secondary-dark mb-4">
                                     Please upload a valid government-issued ID (Driver's License, Passport, or National ID Card)
                                 </p>

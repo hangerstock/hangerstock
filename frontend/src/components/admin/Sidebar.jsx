@@ -25,7 +25,8 @@ import {
     Tags,
     PoundSterling,
     Banknote,
-    BanknoteArrowDown
+    BanknoteArrowDown,
+    BanknoteArrowUp
 } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { logo } from "../../assets";
@@ -67,6 +68,11 @@ const navigation = [
         name: 'Payouts',
         path: '/admin/payouts',
         icon: <BanknoteArrowDown size={20} />
+    },
+    {
+        name: 'Bank Details',
+        path: '/admin/payout-methods',
+        icon: <BanknoteArrowUp size={20} />
     },
     {
         name: 'Categories',
