@@ -609,7 +609,7 @@ const Register = () => {
         <div className="min-h-screen pt-32 pb-16 bg-bg-secondary dark:bg-bg-primary flex items-center justify-center p-4">
             <div className="bg-gradient-to-b from-bg-primary/[0.03] to-transparent dark:from-white/[0.03] dark:to-transparent rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden border border-gray-200 dark:border-bg-primary-light">
                 <div className="pt-8 text-center flex flex-col items-center justify-center gap-3">
-                    <img src={darkLogo} alt="logo" className='h-6 dark:invert' />
+                    <img src={darkLogo} alt="logo" className='h-8 brightness-125' />
                     <p className="text-text-primary dark:text-text-primary-dark text-lg">Create your account</p>
                 </div>
 
@@ -913,8 +913,8 @@ const Register = () => {
                                         <Gavel size={40} className={`flex-shrink-0 p-2 rounded ${userType === 'bidder' ? 'bg-bg-primary dark:bg-bg-secondary text-text-primary-dark dark:text-text-primary' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-bg-secondary-dark'
                                             }`} />
                                         <div>
-                                            <p className="text-sm font-semibold text-text-primary dark:text-text-primary-dark">I'm a bidder</p>
-                                            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">I want to bid on the listings on the platform.</p>
+                                            <p className="text-sm font-semibold text-text-primary dark:text-text-primary-dark">I'm a buyer</p>
+                                            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">I want to buy on the listings on the platform.</p>
                                         </div>
                                     </label>
 

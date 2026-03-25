@@ -92,7 +92,7 @@ function Sidebar() {
                 {/* Logo/Brand */}
                 <div className="px-4 mb-8 flex items-center justify-between pb-2">
                     <Link to={'/'}>
-                        <img src={logo} className="h-5 md:h-6 invert" alt="logo" />
+                        <img src={logo} className="h-8 md:h-10 brightness-125" alt="logo" />
                     </Link>
                     <button
                         onClick={() => setIsOpen(false)}

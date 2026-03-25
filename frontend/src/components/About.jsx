@@ -1,6 +1,6 @@
 import { Search, Gavel, Shield, Gem, Shirt, Heart, Store } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { otherData, whoWeAre } from "../assets";
+import { about, otherData } from "../assets";
 import Container from "./Container";
 
 function About() {
@@ -23,7 +23,7 @@ function About() {
             {/* LEFT IMAGE + TEXT */}
             <div className="relative lg:col-span-2">
                 <img
-                    src={`https://images.pexels.com/photos/5709631/pexels-photo-5709631.jpeg`}
+                    src={about}
                     alt="fashion"
                     className="absolute inset-0 w-full h-full object-cover"
                 />

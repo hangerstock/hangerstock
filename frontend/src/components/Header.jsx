@@ -1,7 +1,7 @@
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { closeMenu, darkLogo, logo, menuIcon } from "../assets";
 import Container from "./Container";
-import { ChevronRight, LayoutDashboard, LogIn, Search, ChevronDown, X, Gavel, Clock, DollarSign, Gift } from "lucide-react";
+import { ChevronRight, LayoutDashboard, LogIn, Search, ChevronDown, X, Gavel, Clock, DollarSign, Gift, Store, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePopUp } from "../contexts/PopUpContextProvider";
@@ -18,10 +18,10 @@ const navLinks = [
         name: 'About',
         href: '/about'
     },
-    {
-        name: 'Contact',
-        href: '/contact'
-    },
+    // {
+    //     name: 'Contact',
+    //     href: '/contact'
+    // },
     // {
     //     name: 'FAQs',
     //     href: '/faqs'
@@ -34,11 +34,17 @@ const auctionTypes = [
     { name: "Buy Now", slug: "buy_now", icon: DollarSign },
 ];
 
+const registerTypes = [
+    { name: "Seller Account", slug: "seller", icon: Store },
+    { name: "Buyer Account", slug: "bidder", icon: User },
+];
+
 function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isAuctionTypesOpen, setIsAuctionTypesOpen] = useState(false);
+    const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [categories, setCategories] = useState([]);
     const [hoveredCategory, setHoveredCategory] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -46,9 +52,11 @@ function Header() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const auctionTypesRef = useRef(null);
+    const registerRef = useRef(null);
 
     const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
     const [mobileAuctionTypesOpen, setMobileAuctionTypesOpen] = useState(false);
+    const [mobileRegisterOpen, setMobileRegisterOpen] = useState(false);
     const [activeMobileCategory, setActiveMobileCategory] = useState(null);
 
     useEffect(() => {
@@ -62,6 +70,10 @@ function Header() {
         const handleClickOutside = (event) => {
             if (auctionTypesRef.current && !auctionTypesRef.current.contains(event.target)) {
                 setIsAuctionTypesOpen(false);
+            }
+
+            if (registerRef.current && !registerRef.current.contains(event.target)) {
+                setIsRegisterOpen(false);
             }
         };
 
@@ -138,6 +150,13 @@ function Header() {
         setMobileAuctionTypesOpen(false);
     };
 
+    // Handle auction type selection
+    const handleRegisterTypeSelect = (slug) => {
+        navigate(`/register`);
+        setIsRegisterOpen(false);
+        setMobileRegisterOpen(false);
+    };
+
     return (
         <header className={`${isScrolled
             ? 'fixed bg-bg-secondary dark:bg-bg-primary bg-opacity-100 shadow-lg shadow-pure-black/4 dark:shadow-pure-white/4'
@@ -148,7 +167,7 @@ function Header() {
                     <img
                         src={logo}
                         alt="Hangerstock's Logo"
-                        className={`h-5 md:h-6 z-10 ${!isScrolled && pathname === '/' ? 'brightness-0 invert dark:brightness-100 dark:invert' : 'dark:invert'}`}
+                        className={`h-8 md:h-10 z-10 ${!isScrolled && pathname === '/' ? 'brightness-150 dark:brightness-150' : 'brightness-125'}`}
                     />
                 </Link>
 
@@ -217,82 +236,116 @@ function Header() {
 
                         {/* Categories Dropdown */}
                         <li className={`${isScrolled
-    ? 'text-text-primary dark:text-text-primary-dark'
-    : 'text-text-primary-dark'} relative`}
->
-    <button
-        onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-        className="categories-trigger flex gap-1 items-center cursor-pointer hover:underline"
-    >
-        <span>Categories</span>
-        <ChevronDown size={16} className={`transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-    </button>
-
-    {isCategoriesOpen && (
-        <div className="fixed inset-0 z-40 flex justify-center items-start pt-24 px-4">
-            <div
-                className="absolute inset-0 bg-pure-black/40 dark:bg-pure-black/60 backdrop-blur-sm"
-                onClick={() => setIsCategoriesOpen(false)}
-            />
-
-            <div className="relative w-full max-w-6xl bg-bg-secondary dark:bg-bg-primary shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                <div className="flex h-[75vh]">
-                    {/* LEFT SIDEBAR - Dark in light mode, Light in dark mode */}
-                    <div className="w-1/4 overflow-y-auto py-4 border-r border-gray-200 dark:border-gray-700 bg-bg-primary dark:bg-bg-secondary">
-                        {categories.map((cat) => (
-                            <div
-                                key={cat.slug}
-                                onMouseEnter={() => setHoveredCategory(cat.slug)}
-                                onClick={() => setHoveredCategory(cat.slug)}
-                                className={`flex items-center justify-between px-5 py-4 mx-4 cursor-pointer rounded-lg transition
-                                    ${hoveredCategory === cat.slug
-                                        ? "bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark"
-                                        : "text-text-primary-dark dark:text-text-primary hover:bg-gray-800 dark:hover:bg-gray-200"
-                                    }`}
+                            ? 'text-text-primary dark:text-text-primary-dark'
+                            : 'text-text-primary-dark'} relative`}
+                        >
+                            <button
+                                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                                className="categories-trigger flex gap-1 items-center cursor-pointer hover:underline"
                             >
-                                <span className="font-medium">{cat.name}</span>
-                                <ChevronRight size={18} />
-                            </div>
-                        ))}
-                    </div>
+                                <span>Categories</span>
+                                <ChevronDown size={16} className={`transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                    {/* RIGHT CONTENT - Light in light mode, Dark in dark mode */}
-                    <div className="w-3/4 bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark p-8 overflow-y-auto">
-                        {categories
-                            .filter((cat) => cat.slug === hoveredCategory)
-                            .map((activeCat) => (
-                                <div key={activeCat.slug}>
-                                    <p className="text-2xl font-bold text-text-primary dark:text-text-primary-dark">
-                                        {activeCat.name}
-                                    </p>
-
-                                    <button
+                            {isCategoriesOpen && (
+                                <div className="fixed inset-0 z-40 flex justify-center items-start pt-24 px-4">
+                                    <div
+                                        className="absolute inset-0 bg-pure-black/40 dark:bg-pure-black/60 backdrop-blur-sm"
                                         onClick={() => setIsCategoriesOpen(false)}
-                                        className="absolute top-5 right-5 text-text-primary dark:text-text-primary-dark hover:text-text-primary/80 dark:hover:text-text-primary-dark/80 transition"
-                                    >
-                                        <X size={24} />
-                                    </button>
+                                    />
 
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-4 mt-8">
-                                        {activeCat.children?.map((sub) => (
-                                            <Link
-                                                key={sub.slug}
-                                                to={`/auctions?category=${hoveredCategory}&subcategory=${sub.slug}`}
-                                                onClick={() => setIsCategoriesOpen(false)}
-                                                className="flex gap-1 text-text-primary dark:text-text-primary-dark text-lg font-medium hover:underline"
-                                            >
-                                                {sub.name}
-                                            </Link>
-                                        ))}
+                                    <div className="relative w-full max-w-6xl bg-bg-secondary dark:bg-bg-primary shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                                        <div className="flex h-[75vh]">
+                                            {/* LEFT SIDEBAR - Dark in light mode, Light in dark mode */}
+                                            <div className="w-1/4 overflow-y-auto py-4 border-r border-gray-200 dark:border-gray-700 bg-bg-primary dark:bg-bg-secondary">
+                                                {categories.map((cat) => (
+                                                    <div
+                                                        key={cat.slug}
+                                                        onMouseEnter={() => setHoveredCategory(cat.slug)}
+                                                        onClick={() => setHoveredCategory(cat.slug)}
+                                                        className={`flex items-center justify-between px-5 py-4 mx-4 cursor-pointer rounded-lg transition
+                                    ${hoveredCategory === cat.slug
+                                                                ? "bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark"
+                                                                : "text-text-primary-dark dark:text-text-primary hover:bg-gray-800 dark:hover:bg-gray-200"
+                                                            }`}
+                                                    >
+                                                        <span className="font-medium">{cat.name}</span>
+                                                        <ChevronRight size={18} />
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* RIGHT CONTENT - Light in light mode, Dark in dark mode */}
+                                            <div className="w-3/4 bg-bg-secondary dark:bg-bg-primary text-text-primary dark:text-text-primary-dark p-8 overflow-y-auto">
+                                                {categories
+                                                    .filter((cat) => cat.slug === hoveredCategory)
+                                                    .map((activeCat) => (
+                                                        <div key={activeCat.slug}>
+                                                            <p className="text-2xl font-bold text-text-primary dark:text-text-primary-dark">
+                                                                {activeCat.name}
+                                                            </p>
+
+                                                            <button
+                                                                onClick={() => setIsCategoriesOpen(false)}
+                                                                className="absolute top-5 right-5 text-text-primary dark:text-text-primary-dark hover:text-text-primary/80 dark:hover:text-text-primary-dark/80 transition"
+                                                            >
+                                                                <X size={24} />
+                                                            </button>
+
+                                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-4 mt-8">
+                                                                {activeCat.children?.map((sub) => (
+                                                                    <Link
+                                                                        key={sub.slug}
+                                                                        to={`/auctions?category=${hoveredCategory}&subcategory=${sub.slug}`}
+                                                                        onClick={() => setIsCategoriesOpen(false)}
+                                                                        className="flex gap-1 text-text-primary dark:text-text-primary-dark text-lg font-medium hover:underline"
+                                                                    >
+                                                                        {sub.name}
+                                                                    </Link>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    )}
-</li>
+                            )}
+                        </li>
+
+                        {/* Registration Dropdown */}
+                        <li
+                            ref={registerRef}
+                            className={`${isScrolled
+                                ? 'text-text-primary dark:text-text-primary-dark'
+                                : 'text-text-primary-dark'} relative`}
+                        >
+                            <button
+                                onClick={() => setIsRegisterOpen(!isRegisterOpen)}
+                                className="auction-types-trigger flex gap-1 items-center cursor-pointer hover:underline"
+                            >
+                                <span>Register</span>
+                                <ChevronDown size={16} className={`transition-transform ${isRegisterOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isRegisterOpen && (
+                                <div className="absolute top-full -right-full mt-2 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                                    {registerTypes.map((type) => {
+                                        const Icon = type.icon;
+                                        return (
+                                            <button
+                                                key={type.slug}
+                                                onClick={() => handleRegisterTypeSelect(type.slug)}
+                                                className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
+                                            >
+                                                <Icon size={18} className="text-orange-500" />
+                                                <span>{type.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </li>
 
                         <li>
                             <ThemeToggle />
@@ -354,6 +407,20 @@ function Header() {
                                 className="flex items-center gap-1"
                             >
                                 Categories
+                                <ChevronRight size={16} />
+                            </button>
+                        </li>
+
+                        {/* Mobile Register Types */}
+                        <li className="relative mx-5 py-2 mb-2">
+                            <button
+                                onClick={() => {
+                                    setMobileRegisterOpen(true);
+                                    setIsMenuOpen(false);
+                                }}
+                                className="flex items-center gap-1"
+                            >
+                                Register
                                 <ChevronRight size={16} />
                             </button>
                         </li>
@@ -426,6 +493,45 @@ function Header() {
                                     View all auctions <ChevronRight size={16} />
                                 </Link>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* MOBILE REGISTER TYPES DRAWER */}
+                <div
+                    className={`fixed inset-0 bg-bg-secondary dark:bg-bg-primary z-[100] transform transition-transform duration-300 ${mobileRegisterOpen ? "translate-x-0" : "translate-x-full"}`}
+                >
+                    <div className="h-full overflow-y-auto text-text-primary dark:text-text-primary-dark">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-xl font-bold">Register</h2>
+                            <X
+                                className="cursor-pointer"
+                                onClick={() => setMobileRegisterOpen(false)}
+                            />
+                        </div>
+
+                        <div className="p-5 space-y-3">
+                            {registerTypes.map((type) => {
+                                const Icon = type.icon;
+                                return (
+                                    <div
+                                        key={type.slug}
+                                        onClick={() => {
+                                            handleRegisterTypeSelect(type.slug);
+                                            setMobileRegisterOpen(false);
+                                        }}
+                                        className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
+                                    >
+                                        <div className="p-2 rounded-lg bg-bg-primary dark:bg-bg-secondary">
+                                            <Icon size={20} className="text-text-primary-dark dark:text-text-primary" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold">{type.name}</h3>
+                                            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">{type.description}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

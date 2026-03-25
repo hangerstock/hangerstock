@@ -90,10 +90,10 @@ function Footer() {
                 <div className='flex flex-wrap justify-between gap-12 md:gap-6'>
                     <div className='max-w-80 relative z-20'>
                         <Link to='/' className="flex gap-2 z-50 mb-4">
-                            <img src={logo} alt="logo" className="h-5 md:h-6 brightness-0 invert" />
+                            <img src={logo} alt="logo" className="h-10 md:h-12 brightness-125" />
                         </Link>
                         <p className='text-bg-secondary-dark/80'>
-                            Bid with confidence on quality machinery — verified listings, real-time updates, and complete transparency. That's the {otherData?.brandName} promise.
+                            Bid with confidence on quality fashion items — verified listings, real-time updates, and complete transparency. That's the {otherData?.brandName} promise.
                         </p>
                         <div className='flex items-center gap-3 mt-4'>
                             <Link to="#" target="_blank" className="text-bg-secondary-dark/80 hover:text-white transition-colors">

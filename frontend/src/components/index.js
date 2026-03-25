@@ -10,7 +10,6 @@ import Testimonial from "./Testimonial";
 import CTA from "./CTA";
 import About from "./About";
 import CategoryImg from "./CategoryImg";
-import AllCategoryImages from "./AllCategoryImages";
 import AuctionCard from "./AuctionCard";
 import VimeoEmbed from "./VimeoEmbed";
 import YouTubeEmbed from "./YouTubeEmbed";
@@ -83,7 +82,6 @@ export {
     CTA,
     About,
     CategoryImg,
-    AllCategoryImages,
     AuctionCard,
     VimeoEmbed,
     YouTubeEmbed,

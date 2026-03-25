@@ -2,31 +2,7 @@ import { lazy, Suspense } from "react";
 import { Hero, Container, Testimonial, HowItWorksCard, LoadingSpinner, AuctionCard, AuctionListItem, CategoryCarousel, HowItWorks } from "../components";
 import Marquee from "react-fast-marquee";
 import { BadgeCheck, Gavel, Grid, List, Tag, Upload, Filter, UserCog2, LucideVerified, UserPlus, Clock, PhoneCall, Target, Users, ArrowRight, User, CarFront, Hand } from "lucide-react";
-import {
-    CaseIH,
-    Claas,
-    Cummins,
-    Fendt,
-    Freightliner,
-    Hitachi,
-    JCB,
-    JohnDeere,
-    Komatsu,
-    Kubota,
-    Liebherr,
-    MasseyFerguson,
-    Mercedes,
-    NewHolland,
-    NokianTyres,
-    Peterbilt,
-    Scag,
-    Skania,
-    Stiga,
-    Timberjack,
-    Toro,
-    Toyota,
-    Volvo,
-} from "../assets";
+
 import { useState } from "react";
 import toast from "react-hot-toast";
 import axiosInstance from "../utils/axiosInstance";
@@ -39,32 +15,6 @@ const TestimonialSection = lazy(() => import('../components/TestimonialSection')
 const About = lazy(() => import('../components/About'));
 const CorePlatformFeatures = lazy(() => import('../components/CorePlatformFeatures'));
 const AuctionWorkflow = lazy(() => import('../components/AuctionWorkflow'));
-
-const trustedBrands = [
-    { src: CaseIH, alt: 'Case IH' },
-    { src: Claas, alt: 'Claas' },
-    { src: Cummins, alt: 'Cummins' },
-    { src: Fendt, alt: 'Fendt' },
-    { src: Freightliner, alt: 'Freightliner' },
-    { src: Hitachi, alt: 'Hitachi' },
-    { src: JCB, alt: 'JCB' },
-    { src: JohnDeere, alt: 'John Deere' },
-    { src: Komatsu, alt: 'Komatsu' },
-    { src: Kubota, alt: 'Kubota' },
-    { src: Liebherr, alt: 'Liebherr' },
-    { src: MasseyFerguson, alt: 'Massey Ferguson' },
-    { src: Mercedes, alt: 'Mercedes' },
-    { src: NewHolland, alt: 'New Holland' },
-    { src: NokianTyres, alt: 'Nokian Tyres' },
-    { src: Peterbilt, alt: 'Peterbilt' },
-    { src: Scag, alt: 'Scag' },
-    { src: Skania, alt: 'Skania' },
-    { src: Stiga, alt: 'Stiga' },
-    { src: Timberjack, alt: 'Timberjack' },
-    { src: Toro, alt: 'Toro' },
-    { src: Toyota, alt: 'Toyota' },
-    { src: Volvo, alt: 'Volvo' },
-];
 
 function Home() {
     const [auctions, setAuctions] = useState([]);

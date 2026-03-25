@@ -59,7 +59,7 @@ const Login = () => {
             <div className="bg-gradient-to-b from-bg-primary/[0.03] to-transparent dark:from-white/[0.03] dark:to-transparent rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200 dark:border-bg-primary-light">
                 {/* Header */}
                 <div className="pt-8 text-center flex flex-col items-center justify-center gap-3">
-                    <img src={darkLogo} alt="logo" className='h-6 dark:invert' />
+                    <img src={darkLogo} alt="logo" className='h-8 brightness-125' />
                     <p className="text-text-primary dark:text-text-primary-dark text-lg">Let's sign you in</p>
                 </div>
 
