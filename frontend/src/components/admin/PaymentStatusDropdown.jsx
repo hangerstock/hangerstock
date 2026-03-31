@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, Circle, CheckCircle, AlertCircle, Clock, XCircle, RefreshCw, PoundSterling } from 'lucide-react';
 import { PaymentStatusModal } from '../index';
 
-const PaymentStatusDropdown = ({ auction, onStatusUpdate, disabled }) => {
+const PaymentStatusDropdown = ({ auction, onStatusUpdate, disabled, onGenerateLabel }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -29,16 +29,6 @@ const PaymentStatusDropdown = ({ auction, onStatusUpdate, disabled }) => {
                 icon: <XCircle className="h-4 w-4" />,
                 label: 'Failed'
             },
-            refunded: {
-                color: 'text-blue-600 bg-blue-50 border-blue-200',
-                icon: <PoundSterling className="h-4 w-4" />,
-                label: 'Refunded'
-            },
-            cancelled: {
-                color: 'text-gray-600 bg-gray-50 border-gray-200',
-                icon: <XCircle className="h-4 w-4" />,
-                label: 'Cancelled'
-            }
         };
         return config[status] || config.pending;
     };
@@ -80,7 +70,7 @@ const PaymentStatusDropdown = ({ auction, onStatusUpdate, disabled }) => {
                             onClick={() => setIsOpen(false)}
                         />
                         <div className="absolute z-20 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
-                            {['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'].map((status) => {
+                            {['pending', 'processing', 'completed', 'failed'].map((status) => {
                                 const config = getStatusConfig(status);
                                 return (
                                     <button
@@ -106,6 +96,7 @@ const PaymentStatusDropdown = ({ auction, onStatusUpdate, disabled }) => {
                 auction={auction}
                 onSubmit={handleModalSubmit}
                 loading={loading}
+                onGenerateLabel={onGenerateLabel}
             />
         </>
     );

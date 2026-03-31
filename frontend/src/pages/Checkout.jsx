@@ -29,11 +29,13 @@ import {
     Check,
     Shield,
     Globe,
-    Clock
+    Clock,
+    Edit
 } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import toast from "react-hot-toast";
+import AddressEditModal from "../components/AddressEditModal";
 
 // Bank Transfer Details Component
 const BankTransferDetails = ({ bankDetails, onCopy }) => {
@@ -311,6 +313,9 @@ const CheckoutContent = () => {
     const [showBankDetailsModal, setShowBankDetailsModal] = useState(false);
     const [bankDetailsData, setBankDetailsData] = useState(null);
 
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [address, setAddress] = useState(null);
+
     // Verify access and fetch auction data
     useEffect(() => {
         const verifyAndFetch = async () => {
@@ -373,6 +378,20 @@ const CheckoutContent = () => {
             verifyAndFetch();
         }
     }, [auctionId, navigate]);
+
+    // function to handle address updates
+    const handleAddressUpdate = (updatedAddress) => {
+        setBidderAddress(updatedAddress);
+        // Recalculate shipping rates with the new address
+        if (auction?.parcel && updatedAddress) {
+            calculateShippingRates(
+                seller?.address,
+                updatedAddress,
+                auction.parcel
+            );
+        }
+        toast.success('Address updated successfully');
+    };
 
     // Calculate shipping rates
     const calculateShippingRates = async (fromAddress, toAddress, parcel) => {
@@ -489,13 +508,14 @@ const CheckoutContent = () => {
     // Format address
     const formatAddress = (address) => {
         if (!address) return 'Address not provided';
+        // Check if address is nested
+        const addr = address.address || address;
         const parts = [
-            address.buildingNameNo,
-            address.street1,
-            address.city,
-            address.state,
-            address.zip,
-            address.country
+            addr.street || addr.street1,
+            addr.city,
+            addr.state,
+            addr.postCode || addr.zip || addr.postalCode,
+            addr.country
         ].filter(Boolean);
         return parts.join(', ');
     };
@@ -574,10 +594,25 @@ const CheckoutContent = () => {
                                     <MapPin size={20} className="text-blue-600" />
                                     Shipping Address
                                 </h3>
-                                <div className="bg-gray-50 p-2 rounded-lg">
+                                <div className="bg-gray-50 p-2 rounded-lg flex items-center flex-wrap gap-5">
                                     <p className="text-gray-800">{formatAddress(bidderAddress)}</p>
+                                    <button
+                                        onClick={() => setShowAddressModal(true)}
+                                        className="underline hover:text-blue-700 text-blue-500 transition-colors"
+                                        title="Edit shipping address"
+                                    >
+                                        edit
+                                    </button>
                                 </div>
                             </div>
+
+                            {/* Add the AddressEditModal component at the end of your JSX, before the closing Container tag */}
+                            <AddressEditModal
+                                isOpen={showAddressModal}
+                                onClose={() => setShowAddressModal(false)}
+                                currentAddress={bidderAddress}
+                                onAddressUpdate={handleAddressUpdate}
+                            />
 
                             {/* Shipping Options */}
                             {auction.parcel && (

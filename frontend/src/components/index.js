@@ -68,6 +68,7 @@ import EmailVerificationWarning from "./EmailVerificationWarning";
 import OTP from "./OTP";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
+import AddressEditModal from "./AddressEditModal";
 
 export {
     Container,
@@ -140,4 +141,5 @@ export {
     OTP,
     ThemeToggle,
     LanguageSwitcher,
+    AddressEditModal,
 }

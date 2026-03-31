@@ -620,6 +620,7 @@ function AllAuctions() {
                                                         auction={auction}
                                                         onStatusUpdate={handleUpdatePaymentStatus}
                                                         disabled={auction.status !== 'sold' && auction.status !== 'sold_buy_now'}
+                                                        onGenerateLabel={handleGenerateLabel}
                                                     />
                                                 </td>
 

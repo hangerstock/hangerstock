@@ -266,12 +266,12 @@ export const getAdminStats = async (req, res) => {
       averageSalePrice,
       highestSaleAuction: highestSaleAuction
         ? {
-            title: highestSaleAuction.title,
-            amount: highestSaleAuction.finalPrice,
-            seller: highestSaleAuction.seller?.username || "Unknown",
-            winner: highestSaleAuction.winner?.username || "Unknown",
-            date: highestSaleAuction.createdAt,
-          }
+          title: highestSaleAuction.title,
+          amount: highestSaleAuction.finalPrice,
+          seller: highestSaleAuction.seller?.username || "Unknown",
+          winner: highestSaleAuction.winner?.username || "Unknown",
+          date: highestSaleAuction.createdAt,
+        }
         : null,
 
       // Performance metrics
@@ -1105,9 +1105,9 @@ export const updateAuction = async (req, res) => {
         } else if (typeof req.body.categories === "string") {
           categoriesArray = req.body.categories.includes(",")
             ? req.body.categories
-                .split(",")
-                .map((c) => c.trim())
-                .filter(Boolean)
+              .split(",")
+              .map((c) => c.trim())
+              .filter(Boolean)
             : [req.body.categories];
         }
       }
@@ -2129,13 +2129,13 @@ export const updatePaymentStatus = async (req, res) => {
                 statusDetails: "Label purchased, awaiting carrier pickup",
                 estimatedDelivery: updatedBidPayment.rateEstimatedDays
                   ? new Date(
-                      Date.now() +
-                        updatedBidPayment.rateEstimatedDays *
-                          24 *
-                          60 *
-                          60 *
-                          1000,
-                    )
+                    Date.now() +
+                    updatedBidPayment.rateEstimatedDays *
+                    24 *
+                    60 *
+                    60 *
+                    1000,
+                  )
                   : null,
                 actualDelivery: null,
                 trackingHistory: [],
@@ -2183,18 +2183,18 @@ export const updatePaymentStatus = async (req, res) => {
 
             for (const admin of adminUsers) {
               sendShippingLabelToAdmin(admin, auction, {
-              labelUrl: transaction.labelUrl,
-              trackingNumber: transaction.trackingNumber,
-              trackingUrl: transaction.trackingUrlProvider,
-              carrier: updatedBidPayment.rateProvider,
-              service: updatedBidPayment.rateServiceLevel,
-              estimatedDays: updatedBidPayment.rateEstimatedDays,
-              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
-              currency: updatedBidPayment.rateCurrency || "USD",
-              purchasedAt: new Date(),
-            }).catch((error) =>
-              console.error(`Error in sending admin label email:`, error),
-            );
+                labelUrl: transaction.labelUrl,
+                trackingNumber: transaction.trackingNumber,
+                trackingUrl: transaction.trackingUrlProvider,
+                carrier: updatedBidPayment.rateProvider,
+                service: updatedBidPayment.rateServiceLevel,
+                estimatedDays: updatedBidPayment.rateEstimatedDays,
+                rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
+                currency: updatedBidPayment.rateCurrency || "USD",
+                purchasedAt: new Date(),
+              }).catch((error) =>
+                console.error(`Error in sending admin label email:`, error),
+              );
             }
           } catch (shippingError) {
             console.error("Auto-label generation failed:", shippingError);
@@ -2307,9 +2307,9 @@ export const generateShippingLabelManually = async (req, res) => {
         statusDetails: "Label purchased, awaiting carrier pickup",
         estimatedDelivery: transaction.rate?.estimated_days
           ? new Date(
-              Date.now() +
-                transaction.rate.estimated_days * 24 * 60 * 60 * 1000,
-            )
+            Date.now() +
+            transaction.rate.estimated_days * 24 * 60 * 60 * 1000,
+          )
           : null,
         actualDelivery: null,
         trackingHistory: [],
@@ -2319,15 +2319,52 @@ export const generateShippingLabelManually = async (req, res) => {
     await auction.save();
 
     // Send label to seller
-    // await sendLabelToSeller(auction.seller.email, {
-    //     labelUrl: transaction.labelUrl,
-    //     trackingNumber: transaction.trackingNumber,
-    //     trackingUrl: transaction.trackingUrlProvider,
-    //     auctionTitle: auction.title,
-    //     carrier: transaction.rate?.provider,
-    //     service: transaction.rate?.servicelevel?.name,
-    //     estimatedDays: transaction.rate?.estimated_days
-    // });
+    sendShippingLabelToSeller(auction.seller, auction, {
+      labelUrl: transaction.labelUrl,
+      trackingNumber: transaction.trackingNumber,
+      trackingUrl: transaction.trackingUrlProvider,
+      carrier: bidPayment.rateProvider,
+      service: bidPayment.rateServiceLevel,
+      estimatedDays: bidPayment.rateEstimatedDays,
+      rateAmount: parseFloat(bidPayment.rateAmount) || 0,
+      currency: bidPayment.rateCurrency || "USD",
+      purchasedAt: new Date(),
+    }).catch((error) =>
+      console.error(`Error in sending seller label email:`, error),
+    );
+
+    // Send label to buyer
+    sendShippingLabelToBuyer(auction.winner, auction, {
+      labelUrl: transaction.labelUrl,
+      trackingNumber: transaction.trackingNumber,
+      trackingUrl: transaction.trackingUrlProvider,
+      carrier: bidPayment.rateProvider,
+      service: bidPayment.rateServiceLevel,
+      estimatedDays: bidPayment.rateEstimatedDays,
+      rateAmount: parseFloat(bidPayment.rateAmount) || 0,
+      currency: bidPayment.rateCurrency || "USD",
+      purchasedAt: new Date(),
+    }).catch((error) =>
+      console.error(`Error in sending buyer label email:`, error),
+    );
+
+    const adminUsers = await User.find({ userType: "admin" });
+
+    for (const admin of adminUsers) {
+      sendShippingLabelToAdmin(admin, auction, {
+        labelUrl: transaction.labelUrl,
+        trackingNumber: transaction.trackingNumber,
+        trackingUrl: transaction.trackingUrlProvider,
+        carrier: bidPayment.rateProvider,
+        service: bidPayment.rateServiceLevel,
+        estimatedDays: bidPayment.rateEstimatedDays,
+        rateAmount: parseFloat(bidPayment.rateAmount) || 0,
+        currency: bidPayment.rateCurrency || "USD",
+        purchasedAt: new Date(),
+      }).catch((error) =>
+        console.error(`Error in sending admin label email:`, error),
+      );
+    }
 
     return res.status(200).json({
       success: true,

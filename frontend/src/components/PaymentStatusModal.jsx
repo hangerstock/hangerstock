@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Upload, FileText, CreditCard, Building, Banknote, Globe, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Upload, FileText, CreditCard, Building, Banknote, Globe, AlertCircle, CheckCircle, Truck } from 'lucide-react';
 
-const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => {
+const PaymentStatusModal = ({ isOpen, onClose, onGenerateLabel, auction, onSubmit, loading }) => {
     const [formData, setFormData] = useState({
         paymentStatus: auction?.paymentStatus || 'pending',
         paymentMethod: auction?.paymentMethod || '',
@@ -30,7 +30,7 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
         const file = e.target.files[0];
         if (file) {
             setFormData(prev => ({ ...prev, invoiceFile: file }));
-            
+
             // Create preview for image files
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -44,13 +44,28 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit(formData);
+
+        // Call the onSubmit function from parent
+        const result = await onSubmit(formData);
+
+        // If status was updated to 'completed' and payment method is bank transfer
+        if (formData.paymentStatus === 'completed' &&
+            (formData.paymentMethod === 'bank_transfer' || auction?.paymentMethod === 'bank_transfer')) {
+
+            // Trigger label generation after payment is marked as completed
+            if (onGenerateLabel && auction?._id) {
+                // Small delay to ensure the payment status update is processed
+                setTimeout(() => {
+                    onGenerateLabel(auction._id);
+                }, 500);
+            }
+        }
     };
 
     const getStatusColor = (status) => {
-        switch(status) {
+        switch (status) {
             case 'pending': return 'text-red-600 bg-red-50 border-red-200';
             case 'processing': return 'text-orange-600 bg-orange-50 border-orange-200';
             case 'completed': return 'text-green-600 bg-green-50 border-green-200';
@@ -62,7 +77,7 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
     };
 
     const getStatusIcon = (status) => {
-        switch(status) {
+        switch (status) {
             case 'completed': return <CheckCircle className="h-4 w-4" />;
             case 'failed': return <AlertCircle className="h-4 w-4" />;
             default: return <FileText className="h-4 w-4" />;
@@ -116,10 +131,10 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                                     key={status}
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, paymentStatus: status }))}
-                                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-colors ${formData.paymentStatus === status 
-                                        ? getStatusColor(status) + ' ring-2 ring-offset-1' 
+                                    className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-colors ${formData.paymentStatus === status
+                                        ? getStatusColor(status) + ' ring-2 ring-offset-1'
                                         : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                                    }`}
+                                        }`}
                                 >
                                     {getStatusIcon(status)}
                                     <span className="capitalize text-sm">{status}</span>
@@ -135,15 +150,15 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                                 Payment Method
                             </label>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                {['credit_card', 'bank_transfer', 'paypal', 'other'].map((method) => (
+                                {['credit_card', 'bank_transfer'].map((method) => (
                                     <button
                                         key={method}
                                         type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method }))}
-                                        className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border transition-colors ${formData.paymentMethod === method 
-                                            ? 'bg-blue-50 border-blue-200 text-blue-600 ring-2 ring-offset-1 ring-blue-500' 
+                                        className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border transition-colors ${formData.paymentMethod === method
+                                            ? 'bg-blue-50 border-blue-200 text-blue-600 ring-2 ring-offset-1 ring-blue-500'
                                             : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                                        }`}
+                                            }`}
                                     >
                                         {method === 'credit_card' && <CreditCard className="h-5 w-5" />}
                                         {method === 'bank_transfer' && <Building className="h-5 w-5" />}
@@ -190,8 +205,8 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                                     <Upload className="h-8 w-8 text-gray-400" />
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">
-                                            {formData.invoiceFile 
-                                                ? formData.invoiceFile.name 
+                                            {formData.invoiceFile
+                                                ? formData.invoiceFile.name
                                                 : 'Click to upload invoice'}
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
@@ -201,26 +216,26 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                                 </div>
                             </label>
                         </div>
-                        
+
                         {/* Invoice Preview */}
                         {invoicePreview && (
                             <div className="mt-4">
                                 <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-                                <img 
-                                    src={invoicePreview} 
-                                    alt="Invoice preview" 
+                                <img
+                                    src={invoicePreview}
+                                    alt="Invoice preview"
                                     className="max-w-full h-48 object-contain rounded-lg border border-gray-200"
                                 />
                             </div>
                         )}
-                        
+
                         {/* Existing Invoice */}
                         {auction?.invoice?.url && !formData.invoiceFile && (
                             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                 <p className="text-sm font-medium text-gray-700 mb-1">Current Invoice:</p>
-                                <a 
-                                    href={auction.invoice.url} 
-                                    target="_blank" 
+                                <a
+                                    href={auction.invoice.url}
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
                                 >
@@ -231,7 +246,20 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                         )}
                     </div>
 
-                    {formData.paymentStatus === 'completed' && <p className='text-orange-500 text-xs mb-3'>Note: Marking payment as completed will auto-generate the shipping label.</p>}
+                    {/* Auto-label generation hint */}
+                    {formData.paymentStatus === 'completed' && formData.paymentMethod === 'bank_transfer' && (
+                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-start gap-2">
+                                <Truck className="h-4 w-4 text-blue-600 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-medium text-blue-800">Shipping Label Will Be Generated</p>
+                                    <p className="text-xs text-blue-600">
+                                        After marking as completed, a shipping label will be automatically generated for this order.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Form Actions */}
                     <div className="flex gap-3 pt-4 border-t border-gray-200">
@@ -246,20 +274,21 @@ const PaymentStatusModal = ({ isOpen, onClose, auction, onSubmit, loading }) => 
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`flex-1 px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                                formData.paymentStatus === 'completed' 
-                                    ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                    : formData.paymentStatus === 'failed' || formData.paymentStatus === 'cancelled'
+                            className={`flex-1 px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${formData.paymentStatus === 'completed'
+                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                : formData.paymentStatus === 'failed'
                                     ? 'bg-red-600 hover:bg-red-700 text-white'
                                     : 'bg-blue-600 hover:bg-blue-700 text-white'
-                            } disabled:opacity-50`}
+                                } disabled:opacity-50`}
                         >
                             {loading ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                             ) : (
                                 <>
                                     <CheckCircle className="h-5 w-5" />
-                                    Update to {formData.paymentStatus}
+                                    {formData.paymentStatus === 'completed' && (formData.paymentMethod === 'bank_transfer' || auction?.paymentMethod === 'bank_transfer')
+                                        ? 'Complete'
+                                        : `Update to ${formData.paymentStatus}`}
                                 </>
                             )}
                         </button>

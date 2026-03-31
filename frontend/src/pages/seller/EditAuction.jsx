@@ -30,7 +30,7 @@ import {
     Edit,
     Trash2
 } from "lucide-react";
-import { RTE, SellerContainer, SellerHeader, SellerSidebar } from '../../components';
+import { RTE, SellerContainer, SellerHeader, SellerSidebar, AddressEditModal } from '../../components';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
@@ -470,6 +470,9 @@ const EditAuction = () => {
     const [documentCaptions, setDocumentCaptions] = useState([]);
     const [uploadedDocumentCaptions, setUploadedDocumentCaptions] = useState([]);
 
+    const [sellerAddress, setSellerAddress] = useState(null);
+    const [showAddressModal, setShowAddressModal] = useState(false);
+
     const { auctionId } = useParams();
     const navigate = useNavigate();
 
@@ -495,7 +498,7 @@ const EditAuction = () => {
                 length: '',
                 width: '',
                 height: '',
-                distanceUnit: 'in',
+                distanceUnit: 'ft',
                 massUnit: 'lb'
             }
         }
@@ -835,6 +838,40 @@ const EditAuction = () => {
     const prevStep = () => {
         setStep(step - 1);
         scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Fetch seller address on component mount
+    useEffect(() => {
+        fetchSellerAddress();
+    }, []);
+
+    // Fetch seller's address
+    const fetchSellerAddress = async () => {
+        try {
+            const { data } = await axiosInstance.get('/api/v1/users/profile');
+            if (data.success && data.data.user.address) {
+                setSellerAddress(data.data.user.address);
+            }
+        } catch (error) {
+            console.error('Error fetching seller address:', error);
+        }
+    };
+
+    const handleAddressUpdate = (updatedAddress) => {
+        setSellerAddress(updatedAddress);
+        toast.success('Pickup address updated successfully');
+    };
+
+    const formatAddress = (address) => {
+        if (!address) return 'Address not provided';
+        const parts = [
+            address.street || address.street1,
+            address.city,
+            address.state,
+            address.postCode || address.zip,
+            address.country
+        ].filter(Boolean);
+        return parts.join(', ');
     };
 
     const handlePhotoUpload = (e) => {
@@ -1181,18 +1218,18 @@ const EditAuction = () => {
                                     <div>
                                         <h2 className="text-xl font-semibold mb-6 flex items-center">
                                             <Package size={20} className="mr-2" />
-                                            Bundle Information
+                                            Product Information
                                         </h2>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                             <div>
-                                                <label htmlFor="title" className="block text-sm font-medium text-secondary mb-1">Bundle Name *</label>
+                                                <label htmlFor="title" className="block text-sm font-medium text-secondary mb-1">Product Name *</label>
                                                 <input
-                                                    {...register('title', { required: 'Bundle name is required' })}
+                                                    {...register('title', { required: 'Product name is required' })}
                                                     id="title"
                                                     type="text"
                                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                                                    placeholder="e.g., Summer T-shirt Bundle (10 pcs)"
+                                                    placeholder="e.g., Summer T-shirt (10 pcs)"
                                                 />
                                                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
                                             </div>
@@ -1258,7 +1295,7 @@ const EditAuction = () => {
                                                             Bundle Contents ({bundleItems.length} items)
                                                         </h3>
                                                         <p className="text-sm text-gray-500">
-                                                            Add all items included in this bundle
+                                                            Add all items included in this product bundle
                                                         </p>
                                                     </div>
                                                     <button
@@ -1307,7 +1344,7 @@ const EditAuction = () => {
                                                 ) : (
                                                     <div className="p-8 text-center text-gray-500">
                                                         <Package size={40} className="mx-auto mb-2 text-gray-300" />
-                                                        <p>No items added to bundle yet</p>
+                                                        <p>No items added to product bundle yet</p>
                                                         <button
                                                             type="button"
                                                             onClick={() => {
@@ -1345,7 +1382,7 @@ const EditAuction = () => {
                                         <div className="border-t border-gray-200 pt-6 mb-6">
                                             <h3 className="text-lg font-semibold mb-4 flex items-center">
                                                 <Package size={20} className="mr-2" />
-                                                Parcel Details
+                                                Packing Details
                                             </h3>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1353,7 +1390,7 @@ const EditAuction = () => {
                                                 {/* Mass Unit */}
                                                 <div>
                                                     <label htmlFor="massUnit" className="block text-sm font-medium text-secondary mb-1">
-                                                        Mass Unit
+                                                        Select Unit For Weight
                                                     </label>
                                                     <select
                                                         {...register('parcel.massUnit')}
@@ -1370,18 +1407,18 @@ const EditAuction = () => {
                                                 {/* Distance Unit */}
                                                 <div>
                                                     <label htmlFor="distanceUnit" className="block text-sm font-medium text-secondary mb-1">
-                                                        Distance Unit
+                                                        Select Unit For Dimension
                                                     </label>
                                                     <select
                                                         {...register('parcel.distanceUnit')}
                                                         id="distanceUnit"
                                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                                                     >
+                                                        <option value="ft">ft</option>
                                                         <option value="in">in</option>
                                                         <option value="cm">cm</option>
                                                         <option value="mm">mm</option>
                                                         <option value="m">m</option>
-                                                        <option value="ft">ft</option>
                                                     </select>
                                                 </div>
 
@@ -1471,12 +1508,38 @@ const EditAuction = () => {
                                             </div>
 
                                             <p className="text-xs text-gray-500 mt-2">
-                                                Provide package dimensions for shipping cost calculation. Fields are optional.
+                                                Provide package dimensions for shipping cost calculation.
                                             </p>
                                         </div>
 
+                                        {/* Pick Up Address Section - Add after Packing Details */}
+                                        <div className="border-t border-gray-200 pt-6 mb-6">
+                                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                                    <MapPin size={20} className="text-blue-600" />
+                                                    Pick Up Address (For Shipping)
+                                                </h3>
+                                                <div className="bg-gray-50 p-2 rounded-lg flex items-center flex-wrap gap-5">
+                                                    <p className="text-gray-800">
+                                                        {sellerAddress ? formatAddress(sellerAddress) : 'No address set. Please add your pickup address.'}
+                                                    </p>
+                                                    <button
+                                                        onClick={() => setShowAddressModal(true)}
+                                                        className="hover:text-blue-500 transition-colors"
+                                                        title="Edit pickup address"
+                                                        type="button"
+                                                    >
+                                                        <Edit size={18} strokeWidth={1.5} />
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-2">
+                                                    This address will be used for buyers to pick up items or for shipping calculations.
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         <div className="mb-6">
-                                            <label htmlFor="description" className="block text-sm font-medium text-secondary mb-1">Bundle Description *</label>
+                                            <label htmlFor="description" className="block text-sm font-medium text-secondary mb-1">Product Description *</label>
                                             <RTE
                                                 name="description"
                                                 control={control}
@@ -1489,8 +1552,8 @@ const EditAuction = () => {
                                             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                            <div>
+                                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+                                            {/* <div>
                                                 <label htmlFor="location" className="block text-sm font-medium text-secondary mb-1">Location</label>
                                                 <div className="relative">
                                                     <MapPin size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -1502,10 +1565,10 @@ const EditAuction = () => {
                                                         placeholder="e.g., New York, NY"
                                                     />
                                                 </div>
-                                            </div>
+                                            </div> */}
 
                                             <div>
-                                                <label htmlFor="video" className="block text-sm font-medium text-secondary mb-1">Video Link</label>
+                                                <label htmlFor="video" className="block text-sm font-medium text-secondary mb-1">Video Link (optional)</label>
                                                 <div className="relative">
                                                     <Youtube size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                                     <input
@@ -1578,7 +1641,7 @@ const EditAuction = () => {
                                                 <label htmlFor="photo-upload" className="cursor-pointer">
                                                     <Image size={40} className="mx-auto text-gray-400 mb-2" />
                                                     <p className="text-gray-600">Browse photo(s) to upload</p>
-                                                    <p className="text-sm text-secondary">Bundle photos, group shots, detail shots</p>
+                                                    <p className="text-sm text-secondary">Product photos, group shots, detail shots</p>
                                                 </label>
                                             </div>
                                             {errors.photos && <p className="text-red-500 text-sm mt-1">{errors.photos.message}</p>}
@@ -1773,7 +1836,7 @@ const EditAuction = () => {
                                                             />
                                                         </div>
                                                         {errors.reservePrice && <p className="text-red-500 text-sm mt-1">{errors.reservePrice.message}</p>}
-                                                        <p className="text-sm text-secondary mt-1">Bundle will not sell if bids don't reach this price</p>
+                                                        <p className="text-sm text-secondary mt-1">Auction will not sell if bids don't reach this price</p>
                                                     </div>
                                                 )}
 
@@ -1804,7 +1867,7 @@ const EditAuction = () => {
                                                         </div>
                                                         {errors.buyNowPrice && <p className="text-red-500 text-sm mt-1">{errors.buyNowPrice.message}</p>}
                                                         <p className="text-sm text-secondary mt-1">
-                                                            Buyers can purchase the entire bundle immediately at this price
+                                                            Buyers can purchase the entire product bundle immediately at this price
                                                         </p>
                                                     </div>
                                                 )}
@@ -1823,9 +1886,9 @@ const EditAuction = () => {
                                                             <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ${watch('allowOffers') ? 'transform translate-x-6' : ''}`}></div>
                                                         </div>
                                                         <div className="ml-3">
-                                                            <span className="font-medium text-secondary">Allow Offers on Bundle</span>
+                                                            <span className="font-medium text-secondary">Allow Offers on Product Bundle</span>
                                                             <p className="text-sm text-secondary mt-1">
-                                                                Enable buyers to make purchase offers for the entire bundle
+                                                                Enable buyers to make purchase offers for the entire product bundle
                                                             </p>
                                                         </div>
                                                     </label>
@@ -1859,16 +1922,16 @@ const EditAuction = () => {
                                         </h2>
 
                                         <div className="bg-gray-50 p-6 rounded-lg mb-6 border border-gray-200">
-                                            <h3 className="font-medium text-lg mb-4 border-b pb-2">Bundle Summary</h3>
+                                            <h3 className="font-medium text-lg mb-4 border-b pb-2">Auction Summary</h3>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {/* Bundle Details */}
                                                 <div className="space-y-4">
                                                     <div className="bg-white p-4 rounded-lg shadow-sm">
-                                                        <h4 className="font-medium mb-3">Bundle Details</h4>
+                                                        <h4 className="font-medium mb-3">Product Details</h4>
                                                         <div className="space-y-2">
                                                             <div>
-                                                                <p className="text-xs text-secondary">Bundle Name</p>
+                                                                <p className="text-xs text-secondary">Product Name</p>
                                                                 <p className="font-medium">{watch('title') || 'Not provided'}</p>
                                                             </div>
                                                             <div>
@@ -2041,7 +2104,7 @@ const EditAuction = () => {
                                                     <div className="bg-white p-4 rounded-lg shadow-sm">
                                                         <h4 className="font-medium mb-3 flex items-center gap-2">
                                                             <Package size={18} />
-                                                            Parcel Details
+                                                            Packing Details
                                                         </h4>
                                                         <div className="space-y-2">
                                                             {watch('parcel.weight') && (
@@ -2092,7 +2155,7 @@ const EditAuction = () => {
                                                             )}
 
                                                             {!watch('parcel.weight') && !watch('parcel.length') && !watch('parcel.width') && !watch('parcel.height') && (
-                                                                <p className="text-gray-500 italic text-sm">No parcel details provided</p>
+                                                                <p className="text-gray-500 italic text-sm">No packing details provided</p>
                                                             )}
                                                         </div>
                                                     </div>
@@ -2121,7 +2184,7 @@ const EditAuction = () => {
                                                     className="mt-1 mr-2"
                                                 />
                                                 <span className="text-sm font-medium text-secondary">
-                                                    I agree to the terms and conditions and confirm that I have the right to sell this bundle
+                                                    I agree to the terms and conditions and confirm that I have the right to sell this product bundle
                                                 </span>
                                             </label>
                                             {errors.termsAgreed && <p className="text-red-500 text-sm mt-1">{errors.termsAgreed.message}</p>}
@@ -2168,6 +2231,14 @@ const EditAuction = () => {
                                     )}
                                 </div>
                                 {errors.endDate && <p className='text-sm text-orange-500 float-right'>Please set end date to proceed.</p>}
+
+                                {/* Address Edit Modal */}
+                                <AddressEditModal
+                                    isOpen={showAddressModal}
+                                    onClose={() => setShowAddressModal(false)}
+                                    currentAddress={sellerAddress}
+                                    onAddressUpdate={handleAddressUpdate}
+                                />
                             </form>
                         </div>
                     </SellerContainer>

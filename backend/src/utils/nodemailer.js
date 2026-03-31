@@ -1860,17 +1860,11 @@ const paymentSuccessEmail = async (user, auction, paymentAmount) => {
                           auction.status === "sold" ||
                           auction.status === "sold_buy_now"
                             ? `
-                            <p>Congratulations on being the highest bidder and winning this auction! Now, you can reach out to ${auction.seller?.firstName || auction.seller?.username} on the following details and follow up to arrange payment and transfer details.</p>
-
-                            ${auction.seller ? `<p><strong>Seller:</strong> ${auction.seller?.firstName || auction.seller?.username}</p>` : ""}
-
-                            ${auction.seller ? `<p><strong>E-mail:</strong> ${auction.seller?.email}</p>` : ""}
-
-                            ${auction.seller ? `<p><strong>Phone:</strong> ${auction.seller?.phone || "Not provided"}</p>` : ""}
+                            <p>Congratulations on winning this auction! </p>
+                            
                         `
                             : ``
-                        }                        
-                        <p>You can check your order and contact the seller from your dashboard.</p>
+                        }  
                         
                         <p>Thank you for your purchase!</p>
                     </div>
@@ -2008,38 +2002,6 @@ const paymentCompletedEmail = async (user, auction, paymentAmount) => {
                                 </div>
                             </div>
                             
-                            <div class="seller-info">
-                                <div class="seller-title">
-                                    <span>📞 SELLER INFORMATION</span>
-                                </div>
-                                <p>Your payment has been confirmed. Below are the seller's contact details so you can coordinate the collection/delivery of your item.</p>
-                                
-                                ${
-                                  auction?.seller
-                                    ? `
-                                <div class="contact-details">
-                                    <p><strong>Seller Name:</strong> ${auction?.seller?.firstName || auction?.seller?.username}</p>
-                                    ${auction?.seller?.email ? `<p><strong>Email:</strong> <a href="mailto:${auction?.seller?.email}" class="contact-link">${auction?.seller?.email}</a></p>` : ""}
-                                    ${auction?.seller?.phone ? `<p><strong>Phone:</strong> <a href="tel:${auction?.seller?.phone}" class="contact-link">${auction?.seller?.phone}</a></p>` : ""}
-                                    ${auction?.location ? `<p><strong>Item Location:</strong> ${auction?.location}</p>` : ""}
-                                </div>
-                                `
-                                    : ""
-                                }
-                                
-                                <p style="margin-top: 15px; font-size: 14px;"><strong>Next Step:</strong> Please contact the seller within 48 hours to arrange collection or delivery of your item.</p>
-                            </div>
-                            
-                            <div class="next-steps">
-                                <div class="steps-title">
-                                    <span>📋 WHAT HAPPENS NEXT</span>
-                                </div>
-                                <p>1. <strong>Contact the seller</strong> using the details provided above</p>
-                                <p>2. <strong>Arrange collection/delivery</strong> - Agree on a convenient time and method</p>
-                                <p>3. <strong>Inspect your item</strong> upon collection/delivery</p>
-                                <p>4. <strong>Complete the transaction</strong> by signing any necessary documentation</p>
-                            </div>
-                            
                             <div class="dashboard-box">
                                 <div class="dashboard-title">📋 MANAGE YOUR PURCHASE</div>
                                 <p>You can view all your won items, download invoices, and track the collection process from your dashboard.</p>
@@ -2170,27 +2132,7 @@ const paymentCompletedSellerEmail = async (seller, auction, buyer) => {
                                 </p>
                             </div>
                             
-                            <div class="buyer-info">
-                                <div class="buyer-title">
-                                    <span>👤 BUYER INFORMATION</span>
-                                </div>
-                                <p>The buyer is now ready to coordinate collection/delivery. Here are their contact details:</p>
-                                
-                                ${
-                                  buyer
-                                    ? `
-                                <div class="contact-details">
-                                    <p><strong>Buyer Name:</strong> ${buyer?.firstName || buyer?.username} ${buyer?.lastName || ""}</p>
-                                    ${buyer?.email ? `<p><strong>Email:</strong> <a href="mailto:${buyer?.email}" class="contact-link">${buyer?.email}</a></p>` : ""}
-                                    ${buyer?.phone ? `<p><strong>Phone:</strong> <a href="tel:${buyer?.phone}" class="contact-link">${buyer?.phone}</a></p>` : ""}
-                                    ${buyer?.address ? `<p><strong>Address:</strong> ${buyer?.address?.street ? `${buyer?.address?.street}, ` : ""}${buyer?.address?.city || ""} ${buyer?.address?.postCode || ""} ${buyer?.address?.country || ""}</p>` : ""}
-                                </div>
-                                `
-                                    : ""
-                                }
-                                
-                                <p style="margin-top: 15px; font-size: 14px;"><strong>Next Step:</strong> As we confirm your payment, you will receive a tracking url and a number which you can use to check the status of your item shipped.</p>
-                            </div>
+                            <p style="margin-top: 15px; font-size: 14px;"><strong>Next Step:</strong> As we confirm your payment, you will receive a tracking url and a number which you can use to check the status of your item shipped.</p>
                             
                             <div class="dashboard-box">
                                 <div class="dashboard-title">📋 MANAGE YOUR SALE</div>

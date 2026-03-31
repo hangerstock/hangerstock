@@ -888,6 +888,7 @@ const Register = () => {
                                         )}
                                     </div>
                                 </div>
+                                <p className='text-gray-500 text-xs'>Note: These details will be used for shipping rates calculation.</p>
                             </div>
 
                             {/* User Type Selection */}

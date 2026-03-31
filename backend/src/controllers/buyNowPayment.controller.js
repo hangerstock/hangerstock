@@ -330,21 +330,6 @@ export const claimBuyNowAuction = async (req, res) => {
         // Create bid payment record for tracking
         const totalAmount = buyNowPrice + commissionAmount;
 
-        await BidPayment.create({
-            auction: auctionId,
-            bidder: userId,
-            bidAmount: buyNowPrice,
-            commissionAmount: commissionAmount,
-            totalAmount: totalAmount,
-            status: "pending",
-            type: "checkout_payment",
-            paymentMethod: null,
-            metadata: {
-                buyNow: true,
-                claimedAt: new Date()
-            }
-        });
-
         // Return success with auction data for redirect
         return res.status(200).json({
             success: true,

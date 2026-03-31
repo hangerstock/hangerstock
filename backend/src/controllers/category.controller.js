@@ -49,18 +49,25 @@ export const createCategory = async (req, res) => {
       }
     }
 
-    // Check if category already exists
-    const existingCategory = await Category.findOne({
-      $or: [
-        { name: name.trim() },
-        { slug: name.trim().toLowerCase().replace(/\s+/g, "-") },
-      ],
-    });
+    // Check if category already exists under the same parent
+    const query = {
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+    };
+    
+    // If parentCategory is provided, check only within that parent
+    // If no parentCategory, check only root-level categories (parentCategory: null)
+    if (parentCategory) {
+      query.parentCategory = parentCategory;
+    } else {
+      query.parentCategory = null;
+    }
+    
+    const existingCategory = await Category.findOne(query);
 
     if (existingCategory) {
       return res.status(400).json({
         success: false,
-        message: "Category with this name already exists",
+        message: `A category with name "${name.trim()}" already exists ${parentCategory ? 'under this parent category' : 'at the root level'}`,
       });
     }
 
