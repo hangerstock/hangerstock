@@ -15,6 +15,7 @@ function AllAuctions() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const navigate = useNavigate();
+    const [isGeneratingLabel, setIsGeneratingLabel] = useState(false);
     const [stats, setStats] = useState({
         total: 0,
         active: 0,
@@ -226,15 +227,23 @@ function AllAuctions() {
                 toast.success('Payment status updated successfully');
                 // Refresh your auctions data
                 fetchAuctions();
+                return true;
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update payment status');
         }
     };
 
-    // Add this function in your component
+    // Generate shipping label
     const handleGenerateLabel = async (auctionId) => {
+        // Prevent duplicate calls
+        if (isGeneratingLabel) {
+            console.log('Label generation already in progress');
+            return;
+        }
+
         try {
+            setIsGeneratingLabel(true);
             const loadingToast = toast.loading('Generating shipping label...');
 
             const { data } = await axiosInstance.post(`/api/v1/admin/${auctionId}/generate-shipping-label`);
@@ -247,6 +256,8 @@ function AllAuctions() {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to generate label");
+        } finally {
+            setIsGeneratingLabel(false);
         }
     };
 
@@ -659,7 +670,7 @@ function AllAuctions() {
                                                             {activeDropdown === auction._id && (
                                                                 <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-40 py-1">
 
-                                                                    {auction.paymentStatus === 'completed' && auction.paymentMethod === 'bank_transfer' && !auction.shipping?.transaction?.trackingNumber && (
+                                                                    {/* {auction.paymentStatus === 'completed' && auction.paymentMethod === 'bank_transfer' && !auction.shipping?.transaction?.trackingNumber && (
                                                                         <button
                                                                             onClick={() => handleGenerateLabel(auction._id)}
                                                                             className="flex items-center gap-3 w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-colors"
@@ -667,7 +678,7 @@ function AllAuctions() {
                                                                             <Truck size={16} />
                                                                             <span>Generate Shipping Label</span>
                                                                         </button>
-                                                                    )}
+                                                                    )} */}
 
                                                                     {auction?.invoice?.url && (
                                                                         <Link

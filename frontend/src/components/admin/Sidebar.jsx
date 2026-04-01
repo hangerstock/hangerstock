@@ -85,7 +85,7 @@ const navigation = [
         icon: <MessageCircle size={20} />,
     },
     {
-        name: 'Support',
+        name: 'Inquiries',
         path: '/admin/support/inquiries',
         icon: <MessageSquare size={20} />,
     },

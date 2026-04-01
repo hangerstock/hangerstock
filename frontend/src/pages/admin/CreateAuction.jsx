@@ -646,7 +646,7 @@ const CreateAuction = () => {
                                         </div>
 
                                         {/* Bundle Items Builder */}
-                                        {selectedCategory && categoryFields.length > 0 && (
+                                        {selectedCategory && categoryFields?.length > 0 && (
                                             <div className="mb-8 border rounded-lg overflow-hidden">
                                                 <div className="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
                                                     <div>

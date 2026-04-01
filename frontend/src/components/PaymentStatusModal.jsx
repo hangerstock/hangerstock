@@ -11,6 +11,8 @@ const PaymentStatusModal = ({ isOpen, onClose, onGenerateLabel, auction, onSubmi
     });
 
     const [invoicePreview, setInvoicePreview] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [labelGenerated, setLabelGenerated] = useState(false);
 
     // Reset form when auction changes
     useEffect(() => {
@@ -47,22 +49,41 @@ const PaymentStatusModal = ({ isOpen, onClose, onGenerateLabel, auction, onSubmi
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Call the onSubmit function from parent
-        const result = await onSubmit(formData);
+        // Prevent double submission
+        if (isSubmitting) return;
 
-        // If status was updated to 'completed' and payment method is bank transfer
-        if (formData.paymentStatus === 'completed' &&
-            (formData.paymentMethod === 'bank_transfer' || auction?.paymentMethod === 'bank_transfer')) {
+        setIsSubmitting(true);
 
-            // Trigger label generation after payment is marked as completed
-            if (onGenerateLabel && auction?._id) {
-                // Small delay to ensure the payment status update is processed
-                setTimeout(() => {
-                    onGenerateLabel(auction._id);
-                }, 500);
+        try {
+            // Call the onSubmit function from parent
+            const result = await onSubmit(formData);
+
+            // If status was updated to 'completed' and payment method is bank transfer
+            if (formData.paymentStatus === 'completed' &&
+                (formData.paymentMethod === 'bank_transfer' || auction?.paymentMethod === 'bank_transfer') &&
+                !labelGenerated) {
+
+                // Trigger label generation after payment is marked as completed
+                if (onGenerateLabel && auction?._id) {
+                    setLabelGenerated(true);
+                    await onGenerateLabel(auction._id);
+                }
             }
+
+            onClose();
+        } catch (error) {
+            console.error('Error in payment status update:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    // Reset label generated state when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setLabelGenerated(false);
+        }
+    }, [isOpen]);
 
     const getStatusColor = (status) => {
         switch (status) {

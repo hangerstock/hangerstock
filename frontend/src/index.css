@@ -61,17 +61,6 @@
   animation: sweep 4s linear infinite;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes lineGrow {
   from {
     width: 0%;
@@ -194,4 +183,130 @@ display:none !important;
 
 .goog-te-gadget{
 font-size:0 !important;
+}
+
+/* Slider CSS - Updated with all animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slowZoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.animate-fadeUp {
+  animation: fadeUp 1s ease forwards;
+}
+
+.animate-slowZoom {
+  animation: slowZoom 20s ease-in-out infinite alternate;
+}
+
+/* Additional slider animations */
+@keyframes fadeUpShort {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide transition styles */
+.slide-enter-active {
+  transition: opacity 0.7s ease;
+}
+
+/* Individual element animations */
+.slide-active .eyebrow {
+  animation: fadeUpShort 0.5s 0.1s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .headline {
+  animation: fadeUpShort 0.5s 0.2s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .body-text {
+  animation: fadeUpShort 0.5s 0.3s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .cta-btn {
+  animation: fadeUpShort 0.5s 0.4s ease forwards;
+  opacity: 0;
+}
+
+/* Visual element animations */
+.slide-active .step-pill {
+  animation: fadeInRight 0.4s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .step-pill:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.slide-active .step-pill:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.slide-active .step-pill:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.slide-active .step-pill:nth-child(4) {
+  animation-delay: 0.5s;
+}
+
+.slide-active .big-badge {
+  animation: scaleIn 0.5s 0.3s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .mini-badges {
+  animation: fadeUpShort 0.5s 0.5s ease forwards;
+  opacity: 0;
+}
+
+.slide-active .report-visual {
+  animation: fadeInRight 0.5s 0.3s ease forwards;
+  opacity: 0;
 }

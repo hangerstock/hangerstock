@@ -2084,123 +2084,6 @@ export const updatePaymentStatus = async (req, res) => {
     // When payment is marked as completed
     if (paymentStatus === "completed") {
       auction.paymentDate = new Date();
-
-      // Auto-generate shipping label for bank transfer
-      if (paymentMethod === "bank_transfer" || paymentMethod === "bank") {
-        // Find the bid payment again to get rateId
-        const updatedBidPayment = await BidPayment.findOne({
-          auction: id,
-        });
-
-        if (updatedBidPayment?.rateId) {
-          try {
-            const transaction = await shippo.transactions.create({
-              rate: updatedBidPayment.rateId,
-              label_file_type: "PDF",
-              async: false,
-            });
-
-            // Store COMPLETE shipping data
-            auction.shipping = {
-              rate: {
-                objectId: updatedBidPayment.rateId,
-                provider: updatedBidPayment.rateProvider,
-                serviceLevel: {
-                  name: updatedBidPayment.rateServiceLevel,
-                  token: updatedBidPayment.rateServiceToken,
-                  terms: "",
-                },
-                amount: updatedBidPayment.rateAmount,
-                currency: updatedBidPayment.rateCurrency,
-                estimatedDays: updatedBidPayment.rateEstimatedDays,
-              },
-              transaction: {
-                objectId: transaction.objectId,
-                status: "PURCHASED",
-                labelUrl: transaction.labelUrl,
-                trackingNumber: transaction.trackingNumber,
-                trackingUrl: transaction.trackingUrlProvider,
-                commercialInvoiceUrl: transaction.commercialInvoiceUrl || null,
-                purchasedAt: new Date(),
-                messages: transaction.messages || [],
-              },
-              tracking: {
-                status: "PRE_TRANSIT",
-                statusDetails: "Label purchased, awaiting carrier pickup",
-                estimatedDelivery: updatedBidPayment.rateEstimatedDays
-                  ? new Date(
-                    Date.now() +
-                    updatedBidPayment.rateEstimatedDays *
-                    24 *
-                    60 *
-                    60 *
-                    1000,
-                  )
-                  : null,
-                actualDelivery: null,
-                trackingHistory: [],
-                lastUpdated: new Date(),
-              },
-            };
-            await auction.save();
-
-            // Update bid payment with shipping info
-            updatedBidPayment.shippingLabelGenerated = true;
-            updatedBidPayment.trackingNumber = transaction.trackingNumber;
-            await updatedBidPayment.save();
-
-            // Send label to seller
-            sendShippingLabelToSeller(auction.seller, auction, {
-              labelUrl: transaction.labelUrl,
-              trackingNumber: transaction.trackingNumber,
-              trackingUrl: transaction.trackingUrlProvider,
-              carrier: updatedBidPayment.rateProvider,
-              service: updatedBidPayment.rateServiceLevel,
-              estimatedDays: updatedBidPayment.rateEstimatedDays,
-              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
-              currency: updatedBidPayment.rateCurrency || "USD",
-              purchasedAt: new Date(),
-            }).catch((error) =>
-              console.error(`Error in sending seller label email:`, error),
-            );
-
-            // Send label to buyer
-            sendShippingLabelToBuyer(auction.winner, auction, {
-              labelUrl: transaction.labelUrl,
-              trackingNumber: transaction.trackingNumber,
-              trackingUrl: transaction.trackingUrlProvider,
-              carrier: updatedBidPayment.rateProvider,
-              service: updatedBidPayment.rateServiceLevel,
-              estimatedDays: updatedBidPayment.rateEstimatedDays,
-              rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
-              currency: updatedBidPayment.rateCurrency || "USD",
-              purchasedAt: new Date(),
-            }).catch((error) =>
-              console.error(`Error in sending seller label email:`, error),
-            );
-
-            const adminUsers = await User.find({ userType: "admin" });
-
-            for (const admin of adminUsers) {
-              sendShippingLabelToAdmin(admin, auction, {
-                labelUrl: transaction.labelUrl,
-                trackingNumber: transaction.trackingNumber,
-                trackingUrl: transaction.trackingUrlProvider,
-                carrier: updatedBidPayment.rateProvider,
-                service: updatedBidPayment.rateServiceLevel,
-                estimatedDays: updatedBidPayment.rateEstimatedDays,
-                rateAmount: parseFloat(updatedBidPayment.rateAmount) || 0,
-                currency: updatedBidPayment.rateCurrency || "USD",
-                purchasedAt: new Date(),
-              }).catch((error) =>
-                console.error(`Error in sending admin label email:`, error),
-              );
-            }
-          } catch (shippingError) {
-            console.error("Auto-label generation failed:", shippingError);
-          }
-        }
-      }
     }
 
     // Attach invoice if uploaded
@@ -2262,6 +2145,19 @@ export const generateShippingLabelManually = async (req, res) => {
     const auction = await Auction.findById(id)
       .populate("seller", "email username firstName lastName")
       .populate("winner", "email username firstName lastName address");
+
+    // ✅ Check if label already exists
+    if (auction.shipping?.transaction?.trackingNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Shipping label already generated for this auction",
+        data: {
+          trackingNumber: auction.shipping.transaction.trackingNumber,
+          trackingUrl: auction.shipping.transaction.trackingUrl,
+          labelUrl: auction.shipping.transaction.labelUrl,
+        }
+      });
+    }
 
     const bidPayment = await BidPayment.findOne({ auction: id });
 
