@@ -11,7 +11,7 @@ import {
     Phone,
     User,
 } from "lucide-react";
-import { contactUs, logo, otherData } from "../assets";
+import { contactUs, logo, otherData, wechat, whatsapp } from "../assets";
 import axiosInstance from "../utils/axiosInstance";
 
 function Contact() {
@@ -119,6 +119,24 @@ function Contact() {
                             <div className="flex items-center gap-3 text-text-primary dark:text-text-primary-dark">
                                 <Phone size={18} />
                                 <Link to={`tel:${otherData?.phone}`} className="hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(otherData?.phone)}</Link>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-text-primary dark:text-text-primary-dark">
+                                <img src={whatsapp} alt="WhatsApp" className="w-4 h-4" />
+                                <Link
+                                    className="hover:underline"
+                                    to={`${otherData.whatsappLink}`}
+                                >
+                                    {otherData?.phoneCode} {otherData?.formatPhone(otherData?.whatsapp)}
+                                </Link>
+                            </div>
+                            <div className="flex items-center gap-3 text-text-primary dark:text-text-primary-dark">
+                                <img src={wechat} alt="WeChat" className="w-6 h-6" />
+                                <p
+                                    className="hover:underline"
+                                >
+                                    {otherData.wechat}
+                                </p>
                             </div>
                         </div>
                     </div>

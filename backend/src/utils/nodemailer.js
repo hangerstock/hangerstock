@@ -55,7 +55,6 @@ const formatSpecifications = (specifications) => {
     { key: "size", label: "Size" },
     { key: "dimensions", label: "Dimensions" },
     { key: "color", label: "Color" },
-    { key: "location", label: "Location" },
     { key: "country", label: "Country" },
     { key: "city", label: "City" },
   ];
@@ -81,7 +80,7 @@ const formatCurrency = (amount) => {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 6,
   }).format(amount);
 };
 
@@ -3814,10 +3813,6 @@ const auctionSubmittedForApprovalEmail = async (
                                         <div class="spec-label">Categories</div>
                                         <div class="spec-value">${auction?.categories?.join(", ") || "N/A"}</div>
                                     </div>
-                                    <div class="detail-item">
-                                        <div class="spec-label">Location</div>
-                                        <div class="spec-value">${auction?.location || "Not specified"}</div>
-                                    </div>
                                 </div>
                                 
                                 ${
@@ -4293,10 +4288,6 @@ const newAuctionNotificationEmail = async (buyer, auction, seller) => {
                                     <div class="detail-box">
                                         <div class="detail-label">Categories</div>
                                         <div class="detail-value">${auction?.categories?.join(", ") || "N/A"}</div>
-                                    </div>
-                                    <div class="detail-box">
-                                        <div class="detail-label">Location</div>
-                                        <div class="detail-value">${auction?.location || "Not specified"}</div>
                                     </div>
                                 </div>
                                 
@@ -5181,7 +5172,6 @@ const offerAcceptedEmail = async (
                                     <p><strong>Seller:</strong> ${seller?.firstName || seller?.username}</p>
                                     ${seller?.email ? `<p><strong>Email:</strong> <a href="mailto:${seller?.email}" class="contact-link">${seller?.email}</a></p>` : ""}
                                     ${seller?.phone ? `<p><strong>Phone:</strong> <a href="tel:${seller?.phone}" class="contact-link">${seller?.phone}</a></p>` : ""}
-                                    ${auction?.location ? `<p><strong>Location:</strong> ${auction?.location}</p>` : ""}
                                 </div>
                             </div>
                             

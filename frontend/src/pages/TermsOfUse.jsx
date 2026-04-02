@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Container } from "../components";
 import { otherData } from "../assets";
 
-const { phone, email, address } = otherData;
+const { phone, email, address, whatsapp, whatsappLink, wechat } = otherData;
 
 const TermsOfUse = () => {
     const currentDate = new Date();
@@ -223,18 +223,21 @@ const TermsOfUse = () => {
                         </div>
 
                         {/* Contact */}
-                        <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                            <h2 className="text-xl font-bold text-text-primary dark:text-text-primary-dark mb-4">Contact Information</h2>
-                            <div className="bg-bg-primary dark:bg-bg-secondary p-4 rounded">
-                                <p className="font-semibold text-text-primary-dark dark:text-text-primary mb-2">{otherData?.brandName}</p>
-                                <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1 whitespace-pre-line">{address}</p>
-                                <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
-                                    Email: <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 hover:underline break-all">{email}</a>
-                                </p>
-                                <p className="text-text-primary-dark dark:text-text-primary text-sm">
-                                    Phone: <a href={`tel:${phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(phone)}</a>
-                                </p>
-                            </div>
+                        <div className="bg-bg-primary dark:bg-bg-secondary p-4 rounded">
+                            <p className="font-semibold text-text-primary-dark dark:text-text-primary mb-2">{otherData?.brandName}</p>
+                            <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1 whitespace-pre-line">{address}</p>
+                            <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                Email: <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 hover:underline break-all">{email}</a>
+                            </p>
+                            <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                Phone: <a href={`tel:${phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(phone)}</a>
+                            </p>
+                            <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                WhatsApp: <a href={`${whatsappLink}`} className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(whatsapp)}</a>
+                            </p>
+                            <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                WeChat: <span className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.wechat}</span>
+                            </p>
                         </div>
 
                         {/* Footer Note */}

@@ -947,7 +947,8 @@ function Profile() {
                                                 {new Intl.NumberFormat('en-US', {
                                                     style: 'currency',
                                                     currency: 'USD',
-                                                    minimumFractionDigits: 0
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 6
                                                 }).format(stats.totalRevenue)}
                                             </p>
                                         </div>
@@ -971,7 +972,8 @@ function Profile() {
                                                 {new Intl.NumberFormat('en-US', {
                                                     style: 'currency',
                                                     currency: 'USD',
-                                                    minimumFractionDigits: 0
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 6
                                                 }).format(stats.avgSalePrice)}
                                             </p>
                                         </div>

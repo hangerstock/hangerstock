@@ -4,6 +4,8 @@ import heroImg from './heroImg.webp';
 import contactUs from './contactUs.webp';
 import menuIcon from './menuIcon.svg';
 import closeMenu from './closeMenu.svg';
+import whatsapp from './whatsapp.svg';
+import wechat from './wechat.svg';
 import dummyUserImg from './dummyUserImg.webp';
 import liveAuctions from './liveAuctions.webp';
 import soldAuctions from './soldAuctions.webp';
@@ -19,9 +21,12 @@ function formatPhone(phone) {
 // (202) 555-0125
 
 const otherData = {
-    phone: '1234567890',
+    phone: '2139483852',
+    whatsapp: '2139483852',
+    whatsappLink: 'https://wa.me/12139483852',
     phoneCode: '+1',
     email: 'admin@hangerstock.com',
+    wechat: 'hangerstock',
     address: 'USA',
     brandName: 'HangerStock',
     formatPhone
@@ -35,6 +40,8 @@ export {
     heroImg,
     menuIcon,
     closeMenu,
+    whatsapp,
+    wechat,
     contactUs,
     dummyUserImg,
     liveAuctions,

@@ -108,7 +108,7 @@ function SingleAuction() {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0
+            maximumFractionDigits: 6
         }).format(amount);
     };
 
@@ -509,13 +509,13 @@ function SingleAuction() {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        {/* <div className="flex items-center gap-3">
                             <MapPin className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 text-text-secondary dark:text-text-secondary-dark" strokeWidth={1} />
                             <div>
                                 <p className="text-text-secondary dark:text-text-secondary-dark text-sm">Location</p>
                                 <p className="text-base">{auction.location || 'Not specified'}</p>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center gap-3">
                             <CalendarDays className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 text-text-secondary dark:text-text-secondary-dark" strokeWidth={1} />

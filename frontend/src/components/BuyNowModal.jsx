@@ -136,7 +136,7 @@ const BuyNowModal = ({ isOpen, onClose, auction, loading: externalLoading, isGiv
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 1
+            maximumFractionDigits: 6
         }).format(amount);
     };
 

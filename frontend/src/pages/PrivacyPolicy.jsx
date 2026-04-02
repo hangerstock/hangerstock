@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Container } from "../components";
 import { otherData } from "../assets";
 
-const { phone, email, address } = otherData;
+const { phone, email, address, whatsapp, whatsappLink, wechat } = otherData;
 
 const PrivacyPolicy = () => {
     const currentDate = new Date();
@@ -245,8 +245,14 @@ const PrivacyPolicy = () => {
                                 <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
                                     Email: <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 hover:underline break-all">{email}</a>
                                 </p>
-                                <p className="text-text-primary-dark dark:text-text-primary text-sm">
+                                <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
                                     Phone: <a href={`tel:${phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(phone)}</a>
+                                </p>
+                                <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                    WhatsApp: <a href={`${whatsappLink}`} className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.phoneCode} {otherData?.formatPhone(whatsapp)}</a>
+                                </p>
+                                <p className="text-text-primary-dark dark:text-text-primary text-sm mb-1">
+                                    WeChat: <span className="text-blue-600 dark:text-blue-400 hover:underline">{otherData?.wechat}</span>
                                 </p>
                             </div>
                             <p className="text-text-secondary dark:text-text-secondary-dark text-sm mt-4">

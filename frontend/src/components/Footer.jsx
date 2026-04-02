@@ -1,8 +1,9 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Container } from "../components";
-import { logo, otherData } from "../assets";
+import { logo, otherData, wechat } from "../assets";
 import { Facebook, Instagram, Linkedin, Mail, Phone, Twitter, X, Youtube } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { whatsapp } from "../assets";
 
 function Footer() {
     const navigate = useNavigate();
@@ -96,11 +97,11 @@ function Footer() {
                             Bid with confidence on quality fashion items — verified listings, real-time updates, and complete transparency. That's the {otherData?.brandName} promise.
                         </p>
                         <div className='flex items-center gap-3 mt-4'>
-                            <Link to="#" target="_blank" className="text-bg-secondary-dark/80 hover:text-white transition-colors">
-                                <Instagram strokeWidth={1.25} />
+                            <Link to={otherData.whatsappLink} target="_blank" className="text-bg-secondary-dark/80 hover:text-white transition-colors">
+                                <img src={whatsapp} alt="WhatsApp" className="w-4 h-4 invert" />
                             </Link>
-                            <Link to="#" target="_blank" className="text-bg-secondary-dark/80 hover:text-white transition-colors">
-                                <Facebook strokeWidth={1.25} />
+                            <Link to={`mailto:${otherData.email}`} className="text-bg-secondary-dark/80 hover:text-white transition-colors">
+                                <Mail size={18} className="text-pure-white" />
                             </Link>
                         </div>
                     </div>
@@ -169,7 +170,7 @@ function Footer() {
                         </p>
                         <ul className='mt-3 flex flex-col gap-2'>
                             <li className="flex items-center gap-2">
-                                <Phone size={18} className="text-bg-secondary-dark/80" />
+                                <Phone size={18} className="text-pure-white" />
                                 <Link
                                     className="text-bg-secondary-dark/80 hover:text-white transition-colors"
                                     to={`tel:${otherData.phone}`}
@@ -179,7 +180,24 @@ function Footer() {
                                 </Link>
                             </li>
                             <li className="flex items-center gap-2">
-                                <Mail size={18} className="text-bg-secondary-dark/80" />
+                                <img src={whatsapp} alt="WhatsApp" className="w-4 h-4 invert" />
+                                <Link
+                                    className="text-bg-secondary-dark/80 hover:text-white transition-colors"
+                                    to={`${otherData.whatsappLink}`}
+                                >
+                                    {otherData?.phoneCode} {otherData?.formatPhone(otherData?.whatsapp)}
+                                </Link>
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <img src={wechat} alt="WeChat" className="w-6 h-6 invert" />
+                                <p
+                                    className="text-bg-secondary-dark/80 hover:text-white transition-colors"
+                                >
+                                    {otherData.wechat}
+                                </p>
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <Mail size={18} className="text-pure-white" />
                                 <Link
                                     className="text-bg-secondary-dark/80 hover:text-white transition-colors"
                                     to={`mailto:${otherData.email}`}

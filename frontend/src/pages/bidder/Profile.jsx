@@ -982,7 +982,8 @@ function Profile() {
                                                 {new Intl.NumberFormat('en-US', {
                                                     style: 'currency',
                                                     currency: 'USD',
-                                                    minimumFractionDigits: 0
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 6
                                                 }).format(stats.totalSpent?.toLocaleString('en-US')) || 0}
                                             </p>
                                         </div>
