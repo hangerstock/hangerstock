@@ -43,6 +43,13 @@ const TermsOfUse = () => {
                             <p className="text-text-primary dark:text-text-primary-dark">
                                 By registering for, accessing, or using the Platform, you agree to be bound by these Terms.
                             </p>
+
+                            <div className="bg-orange-400 dark:bg-bg-secondary border-l-4 border-orange-600 dark:border-text-primary-dark p-4 my-6">
+                                <p className="text-text-primary-dark dark:text-text-primary font-semibold mb-2">IMPORTANT – PLEASE READ</p>
+                                <p className="text-pure-white dark:text-text-primary/80 text-sm">
+                                    {otherData?.brandName}.com is not responsible for counterfeit items listed, bought, or sold on the platform. If you find any counterfeit items on our platform, let our team know. We will review them and take immediate action.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Section 1 - Platform Access */}
@@ -118,16 +125,19 @@ const TermsOfUse = () => {
                             </p>
                         </div>
 
-                        {/* Section 7 - Payments & Escrow */}
+                        {/* Section 7 - Payment Terms */}
                         <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                            <h2 className="text-xl font-bold text-text-primary dark:text-text-primary-dark mb-3">7. Payments & Escrow</h2>
-                            <ul className="text-text-secondary dark:text-text-secondary-dark space-y-2 list-disc pl-5">
-                                <li>We accept card payments via Stripe and bank transfers via Wise</li>
-                                <li>All payments are held in escrow until delivery is confirmed</li>
-                                <li>Funds are released to sellers only after buyer confirms receipt</li>
-                                <li>Payment terms vary by listing – check each auction for deadlines</li>
-                                <li>All payments must be made in USD</li>
-                            </ul>
+                            <h2 className="text-xl font-bold text-text-primary dark:text-text-primary-dark mb-3">7. Payment Terms</h2>
+                            <p className="text-text-secondary dark:text-text-secondary-dark">
+                                Auction purchases of $3,000 or less require full payment on the day of the sale.
+                                Purchases of more than $5,000 require a $5,000 deposit, with the final payment due within 2 business days. No extensions will be granted for the final payment.
+
+                                If an auction winner fails to pay the winning amount within two days, their deposit will be forfeited by the admin.
+
+                                Furthermore, if a winner fails to pay the balance on two or more occasions, they will be barred from participating in future auctions.
+
+                                Once the payment has been successfully completed, the admin will refund the bidder’s deposit.
+                            </p>
                         </div>
 
                         {/* Section 8 - Shipping & Delivery */}

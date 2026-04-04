@@ -54,8 +54,15 @@ const faqs = [
                 answer: `${otherData?.brandName} holds all payments securely after a winning bid. Funds are only released to the seller once you confirm delivery or the transaction is finalized. This protects both buyers and sellers.`
             },
             {
-                question: `How long do I have to make payment?`,
-                answer: `Payment terms vary by listing. Check the specific auction or item for your payment deadline. Prompt payment ensures smooth delivery.`
+                question: `How does payment work on ${otherData?.brandName}?`,
+                answer: `Auction purchases of $3,000 or less require full payment on the day of the sale.
+Purchases of more than $5,000 require a $5,000 deposit, with the final payment due within 2 business days. No extensions will be granted for the final payment.
+
+If an auction winner fails to pay the winning amount within two days, their deposit will be forfeited by the admin.
+
+Furthermore, if a winner fails to pay the balance on two or more occasions, they will be barred from participating in future auctions.
+
+Once the payment has been successfully completed, the admin will refund the bidder’s deposit.`
             },
             {
                 question: `Is off-platform communication or payment allowed?`,

@@ -1029,8 +1029,7 @@ const Register = () => {
                                         className="accent-primary dark:accent-primary-dark"
                                     />
                                     <p className="text-sm text-text-secondary dark:text-text-secondary-dark">
-                                        By registering, I agree to {otherData?.brandName}'s <Link className='text-blue-600 dark:text-blue-400 underline' to='/terms-of-use'>Terms of Use</Link>.
-                                        My information will be used as described in the <Link to='/privacy-policy' className='text-blue-600 dark:text-blue-400 underline'>Privacy Policy</Link>.
+                                        By registering, I agree to {otherData?.brandName}'s <Link className='text-blue-600 dark:text-blue-400 underline' to='/terms-of-use'>Terms of Use</Link>, <Link className='text-blue-600 dark:text-blue-400 underline' to='/privacy-policy'>Privacy Policy</Link>, <Link className='text-blue-600 dark:text-blue-400 underline' to='/buyer-agreement'>Buyer's Agreement</Link>, and <Link className='text-blue-600 dark:text-blue-400 underline' to='/seller-agreement'>Seller's Agreement</Link>.
                                     </p>
                                 </label>
                                 {errors.termsConditions && (

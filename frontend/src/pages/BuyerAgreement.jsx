@@ -41,6 +41,13 @@ const BuyerAgreement = () => {
                             <p className="text-text-primary dark:text-text-primary-dark">
                                 By placing a bid, making an offer, or using Buy Now, you agree to be bound by this Agreement.
                             </p>
+
+                            <div className="bg-orange-400 dark:bg-bg-secondary border-l-4 border-orange-600 dark:border-text-primary-dark p-4 my-6">
+                                <p className="text-text-primary-dark dark:text-text-primary font-semibold mb-2">IMPORTANT – PLEASE READ</p>
+                                <p className="text-pure-white dark:text-text-primary/80 text-sm">
+                                    {otherData?.brandName}.com is not responsible for counterfeit items listed, bought, or sold on the platform. If you find any counterfeit items on our platform, let our team know. We will review them and take immediate action.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Section 1 - Eligibility */}
@@ -88,6 +95,21 @@ const BuyerAgreement = () => {
                                 A buyer's premium (a percentage of the winning bid amount) applies to all successful purchases.
                                 The exact percentage is clearly displayed before you bid, make an offer, or complete a Buy Now purchase.
                                 All fees are in USD and are non-refundable except as required by applicable law.
+                            </p>
+                        </div>
+
+                        {/* Section 4 - Payment Terms */}
+                        <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+                            <h2 className="text-xl font-bold text-text-primary dark:text-text-primary-dark mb-3">4.1. Payment Terms</h2>
+                            <p className="text-text-secondary dark:text-text-secondary-dark">
+                                Auction purchases of $3,000 or less require full payment on the day of the sale.
+                                Purchases of more than $5,000 require a $5,000 deposit, with the final payment due within 2 business days. No extensions will be granted for the final payment.
+
+                                If an auction winner fails to pay the winning amount within two days, their deposit will be forfeited by the admin.
+
+                                Furthermore, if a winner fails to pay the balance on two or more occasions, they will be barred from participating in future auctions.
+
+                                Once the payment has been successfully completed, the admin will refund the bidder’s deposit.
                             </p>
                         </div>
 

@@ -42,6 +42,13 @@ const PrivacyPolicy = () => {
                             <p className="text-text-primary dark:text-text-primary-dark">
                                 By registering for, accessing, or using the Platform, you agree to this Privacy Policy.
                             </p>
+
+                            <div className="bg-orange-400 dark:bg-bg-secondary border-l-4 border-orange-600 dark:border-text-primary-dark p-4 my-6">
+                                <p className="text-text-primary-dark dark:text-text-primary font-semibold mb-2">IMPORTANT – PLEASE READ</p>
+                                <p className="text-pure-white dark:text-text-primary/80 text-sm">
+                                    {otherData?.brandName}.com is not responsible for counterfeit items listed, bought, or sold on the platform. If you find any counterfeit items on our platform, let our team know. We will review them and take immediate action.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Section 1 */}
