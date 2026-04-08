@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowBigDownDash, ArrowLeft, ArrowRight, ArrowRightIcon } from "lucide-react";
-import { otherData } from "../assets";
+import { heroImg, heroLady, otherData } from "../assets";
 
 const HeroSlider = () => {
   const [current, setCurrent] = useState(0);
@@ -30,28 +30,30 @@ const HeroSlider = () => {
   return (
     <section className="relative w-full overflow-hidden h-screen md:h-[100vh] min-h-[600px] md:min-h-[500px]">
       {/* Slide 0 - Your Hero Content */}
-      <div className={`absolute inset-0 transition-opacity duration-700 ease flex items-center justify-center ${current === 0 ? "opacity-100 pointer-events-auto slide-active" : "opacity-0 pointer-events-none"}`} style={{ background: "radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.08) 0%, transparent 60%), #0A0D0F" }}>
-        <div className="flex flex-col md:flex-row w-full items-center justify-center md:justify-between px-5 md:px-16 lg:px-24 xl:px-28 py-12 md:py-0 gap-8 md:gap-[4%]">
+      <div className={`absolute inset-0 transition-opacity duration-700 ease flex items-center justify-center ${current === 0 ? "opacity-100 pointer-events-auto slide-active" : "opacity-0 pointer-events-none"}`} style={{
+        backgroundImage: `url(${heroImg})`,
+        backgroundPosition: "center center",
+        backgroundSize: "cover"
+      }}>
+        <div className="flex flex-col md:flex-row h-full w-full items-center justify-center md:justify-between px-5 md:px-16 lg:px-24 xl:px-28 py-12 md:py-0 gap-8 md:gap-[4%]">
           <div className="w-[3px] h-[40px] md:h-[60px] rounded-sm flex-shrink-0 hidden md:block" style={{ background: "linear-gradient(135deg,#FFFFFF,#AAAAAA)" }}></div>
-          <div className="flex-1 text-center md:text-left">
-            <div className="text-[10px] md:text-[12px] font-medium tracking-[0.18em] uppercase mb-3 md:mb-[10px] eyebrow" style={{ color: "#AAAAAA" }}>{otherData?.brandName}</div>
-            <div className="font-semibold text-3xl sm:text-4xl md:text-[clamp(20px,3.2vw,36px)] leading-[1.2] md:leading-[1.15] text-white mb-3 md:mb-3 headline">The No. 1 Anti-Garment <br className="hidden sm:block" /> Waste Web</div>
-            <div className="text-sm sm:text-base md:text-[clamp(11px,1.3vw,16px)] text-white/50 leading-relaxed max-w-full md:max-w-[480px] body-text px-4 md:px-0">
-              Every year, 100 billion garments are crafted worldwide. Yet, 30% never find an owner—never draped, never worn. At {otherData?.brandName}, we give these pieces a second chance to become part of your story.
+          <div className="md:flex-1 text-center md:text-left">
+            <div className="text-[11px] md:text-[12px] font-medium tracking-[0.18em] uppercase mb-3 md:mb-[10px] eyebrow" style={{ color: "#FFFFFF" }}>{otherData?.brandName}</div>
+            <div className="font-bold text-4xl sm:text-5xl md:text-[clamp(30px,4vw,60px)] leading-[1.2] md:leading-[1.15] text-white mb-3 md:mb-3 headline">The No. 1 <br /> Anti-Garment <br /> Waste App</div>
+            <div className="text-base sm:text-lg md:text-[clamp(14px,1.4vw,20px)] text-white leading-loose max-w-full md:max-w-[480px] body-text px-4 md:px-0 font-light">
+              100 billion garments are produced each year and 30% of them are never sold..
             </div>
             <Link to="/auctions" className="inline-block mt-5 md:mt-4 px-6 md:px-5 py-2.5 md:py-2.5 rounded-full text-sm md:text-sm font-medium tracking-[0.05em] transition-all hover:brightness-110 cta-btn" style={{ background: "#FFFFFF", color: "#0A0D0F" }}>
-              Explore Auctions →
+              Shop Now →
             </Link>
           </div>
-          <div className="flex-shrink-0 w-full md:w-auto flex items-center justify-center">
-            <div className="flex flex-col items-center gap-3 md:gap-2.5">
-              <div className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full flex flex-col items-center justify-center border-2 big-badge" style={{ color: "#FFFFFF", borderColor: "rgba(255,255,255,0.3)" }}>
-                <ArrowBigDownDash size={32} />
-              </div>
-              <div className="flex gap-2 mini-badges">
-                <span className="px-3 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium" style={{ background: "rgba(255,255,255,0.15)", color: "#FFFFFF" }}>Second Life</span>
-                <span className="px-3 py-1.5 rounded-full text-[11px] md:text-[12px] font-medium bg-white/10 text-white/70">Circular</span>
-              </div>
+          <div className="flex-shrink-0 hidden w-full md:w-auto md:flex items-center justify-center self-end">
+            <div className="w-[200px] md:w-[300px] lg:w-[425px] max-h-full md:max-w-full md:max-h-[70vh] flex items-center justify-center scale-150">
+              <img
+                src={heroLady}
+                alt="Fashion model"
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
         </div>
@@ -247,8 +249,8 @@ const HeroSlider = () => {
             key={idx}
             onClick={() => goToSlide(idx)}
             className={`transition-all duration-300 cursor-pointer ${current === idx
-                ? "w-5 bg-white/70 rounded-[3px] h-1.5"
-                : "w-1.5 h-1.5 bg-white/20 rounded-full"
+              ? "w-5 bg-white/70 rounded-[3px] h-1.5"
+              : "w-1.5 h-1.5 bg-white/20 rounded-full"
               }`}
           />
         ))}

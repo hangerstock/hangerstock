@@ -13,6 +13,7 @@ import endingSoonAuctions from './endingSoonAuctions.webp';
 import upcomingAuctions from './upcomingAuctions.webp';
 import about from './about.webp';
 import spinner from './spinner.png';
+import heroLady from './heroLady.webp';
 
 function formatPhone(phone) {
   const cleaned = phone.replace(/\D/g, '');
@@ -38,6 +39,7 @@ export {
     darkLogo,
     logo,
     heroImg,
+    heroLady,
     menuIcon,
     closeMenu,
     whatsapp,

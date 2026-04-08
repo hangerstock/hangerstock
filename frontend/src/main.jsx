@@ -24,6 +24,7 @@ const BuyerAgreement = lazy(() => import('./pages/BuyerAgreement'));
 const SingleAuction = lazy(() => import('./pages/SingleAuction'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const FAQs = lazy(() => import('./pages/FAQs'));
+const EscrowCategories = lazy(() => import('./pages/EscrowCategories'));
 
 {/* Seller Pages */ }
 const SellerLayout = lazy(() => import('./pages/seller/Layout'));
@@ -124,6 +125,8 @@ createRoot(document.getElementById('root')).render(
                             <Route path='/buyer-agreement' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><BuyerAgreement /></Suspense>} />
 
                             <Route path='/reset-password' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><ResetPassword /></Suspense>} />
+
+                            <Route path='/escrow-categories' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><EscrowCategories /></Suspense>} />
                         </Route>
 
                         {/* Seller Layout */}
