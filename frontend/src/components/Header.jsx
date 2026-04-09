@@ -1,7 +1,7 @@
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { closeMenu, darkLogo, logo, menuIcon } from "../assets";
 import Container from "./Container";
-import { ChevronRight, LayoutDashboard, LogIn, Search, ChevronDown, X, Gavel, Clock, DollarSign, Gift, Store, User } from "lucide-react";
+import { ChevronRight, LayoutDashboard, LogIn, Search, ChevronDown, X, Gavel, Clock, DollarSign, Gift, Store, User, CreditCard, Banknote, SearchCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePopUp } from "../contexts/PopUpContextProvider";
@@ -18,10 +18,10 @@ const navLinks = [
     //     name: 'About',
     //     href: '/about'
     // },
-    {
-        name: 'Escrow Categories',
-        href: '/escrow-categories'
-    },
+    // {
+    //     name: 'Escrow Categories',
+    //     href: '/escrow'
+    // },
     // {
     //     name: 'Contact',
     //     href: '/contact'
@@ -38,6 +38,12 @@ const auctionTypes = [
     { name: "Buy Now", slug: "buy_now", icon: DollarSign },
 ];
 
+const escrowTypes = [
+    { name: "Escrow-Related Fees", slug: "standard", icon: Banknote },
+    { name: "Card Service Charges", slug: "reserve", icon: CreditCard },
+    { name: "Inspection Fees", slug: "buy_now", icon: SearchCheck },
+];
+
 const registerTypes = [
     { name: "Seller Account", slug: "seller", icon: Store },
     { name: "Buyer Account", slug: "bidder", icon: User },
@@ -47,6 +53,7 @@ function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+    const [isEscrowOpen, setIsEscrowOpen] = useState(false);
     const [isAuctionTypesOpen, setIsAuctionTypesOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -59,7 +66,9 @@ function Header() {
     const registerRef = useRef(null);
 
     const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+    const [mobileEscrowOpen, setMobileEscrowOpen] = useState(false);
     const [mobileAuctionTypesOpen, setMobileAuctionTypesOpen] = useState(false);
+    const [mobileEscrowTypesOpen, setMobileEscrowTypesOpen] = useState(false);
     const [mobileRegisterOpen, setMobileRegisterOpen] = useState(false);
     const [activeMobileCategory, setActiveMobileCategory] = useState(null);
 
@@ -210,7 +219,7 @@ function Header() {
                             </button>
 
                             {isAuctionTypesOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                                <div className="absolute top-full -left-full mt-6 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                                     {auctionTypes.map((type) => {
                                         const Icon = type.icon;
                                         return (
@@ -317,6 +326,38 @@ function Header() {
                             )}
                         </li>
 
+                        {/* Escrow Dropdown */}
+                        <li className={`${isScrolled
+                            ? 'text-text-primary dark:text-text-primary-dark'
+                            : 'text-text-primary-dark'} relative`}
+                        >
+                            <button
+                                onClick={() => {setIsEscrowOpen(!isEscrowOpen)}}
+                                className="categories-trigger flex gap-1 items-center cursor-pointer hover:underline"
+                            >
+                                <span>Escrow</span>
+                                <ChevronDown size={16} className={`transition-transform ${isEscrowOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isEscrowOpen && (
+                                <div className="absolute top-full -left-full mt-6 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                                    {escrowTypes.map((type) => {
+                                        const Icon = type.icon;
+                                        return (
+                                            <button
+                                                key={type.slug}
+                                                onClick={() => {navigate('/escrow'); setIsEscrowOpen(false)}}
+                                                className="w-full text-left px-4 py-2 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
+                                            >
+                                                <Icon size={18} className="text-orange-500" />
+                                                <span>{type.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </li>
+
                         {/* Registration Dropdown */}
                         {!user && (
                             <li
@@ -334,14 +375,14 @@ function Header() {
                                 </button>
 
                                 {isRegisterOpen && (
-                                    <div className="absolute top-full -right-full mt-2 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                                    <div className="absolute top-full -right-full mt-6 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                                         {registerTypes.map((type) => {
                                             const Icon = type.icon;
                                             return (
                                                 <button
                                                     key={type.slug}
                                                     onClick={() => handleRegisterTypeSelect(type.slug)}
-                                                    className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
+                                                    className="w-full text-left px-4 py-2 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
                                                 >
                                                     <Icon size={18} className="text-orange-500" />
                                                     <span>{type.name}</span>
@@ -413,6 +454,20 @@ function Header() {
                                 className="flex items-center gap-1"
                             >
                                 Categories
+                                <ChevronRight size={16} />
+                            </button>
+                        </li>
+
+                        {/* Mobile Escrow Types */}
+                        <li className="relative mx-5 py-2 mb-2">
+                            <button
+                                onClick={() => {
+                                    setMobileEscrowTypesOpen(true);
+                                    setIsMenuOpen(false);
+                                }}
+                                className="flex items-center gap-1"
+                            >
+                                Escrow
                                 <ChevronRight size={16} />
                             </button>
                         </li>
@@ -499,6 +554,45 @@ function Header() {
                                     View all auctions <ChevronRight size={16} />
                                 </Link>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* MOBILE ESCROW TYPES DRAWER */}
+                <div
+                    className={`fixed inset-0 bg-bg-secondary dark:bg-bg-primary z-[100] transform transition-transform duration-300 ${mobileEscrowTypesOpen ? "translate-x-0" : "translate-x-full"}`}
+                >
+                    <div className="h-full overflow-y-auto text-text-primary dark:text-text-primary-dark">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-xl font-bold">Escrow</h2>
+                            <X
+                                className="cursor-pointer"
+                                onClick={() => setMobileEscrowTypesOpen(false)}
+                            />
+                        </div>
+
+                        <div className="p-5 space-y-3">
+                            {escrowTypes.map((type) => {
+                                const Icon = type.icon;
+                                return (
+                                    <div
+                                        key={type.slug}
+                                        onClick={() => {
+                                            navigate('/escrow');
+                                            setMobileEscrowTypesOpen(false);
+                                        }}
+                                        className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
+                                    >
+                                        <div className="p-2 rounded-lg bg-bg-primary dark:bg-bg-secondary">
+                                            <Icon size={20} className="text-text-primary-dark dark:text-text-primary" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold">{type.name}</h3>
+                                            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">{type.description}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

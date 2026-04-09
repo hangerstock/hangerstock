@@ -126,7 +126,7 @@ createRoot(document.getElementById('root')).render(
 
                             <Route path='/reset-password' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><ResetPassword /></Suspense>} />
 
-                            <Route path='/escrow-categories' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><EscrowCategories /></Suspense>} />
+                            <Route path='/escrow' index={true} element={<Suspense fallback={<LoadingSpinner height={'725px'} />}><EscrowCategories /></Suspense>} />
                         </Route>
 
                         {/* Seller Layout */}
