@@ -209,7 +209,7 @@ function Header() {
                         ))}
 
                         <li
-                            onClick={() => window.location.reload()}
+                            onClick={() => window.location.href = '/'}
                             className={`${isScrolled
                                 ? 'text-text-primary dark:text-text-primary-dark'
                                 : 'text-text-primary-dark'} relative hover:underline cursor-pointer`}

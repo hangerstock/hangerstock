@@ -112,7 +112,7 @@ function Footer() {
                         </p>
                         <ul className='mt-3 flex flex-col gap-2'>
                             <li
-                                onClick={() => window.location.reload()}
+                                onClick={() => window.location.href = '/'}
                                 className={
                                             `text-bg-secondary-dark/80 hover:text-white transition-colors cursor-pointer hover:underline`
                                         }
