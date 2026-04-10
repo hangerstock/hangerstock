@@ -332,7 +332,7 @@ function Header() {
                             : 'text-text-primary-dark'} relative`}
                         >
                             <button
-                                onClick={() => {setIsEscrowOpen(!isEscrowOpen)}}
+                                onClick={() => { setIsEscrowOpen(!isEscrowOpen) }}
                                 className="categories-trigger flex gap-1 items-center cursor-pointer hover:underline"
                             >
                                 <span>Escrow</span>
@@ -346,7 +346,7 @@ function Header() {
                                         return (
                                             <button
                                                 key={type.slug}
-                                                onClick={() => {navigate('/escrow'); setIsEscrowOpen(false)}}
+                                                onClick={() => { navigate('/escrow'); setIsEscrowOpen(false) }}
                                                 className="w-full text-left px-4 py-2 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
                                             >
                                                 <Icon size={18} className="text-orange-500" />
@@ -359,40 +359,38 @@ function Header() {
                         </li>
 
                         {/* Registration Dropdown */}
-                        {!user && (
-                            <li
-                                ref={registerRef}
-                                className={`${isScrolled
-                                    ? 'text-text-primary dark:text-text-primary-dark'
-                                    : 'text-text-primary-dark'} relative`}
+                        <li
+                            ref={registerRef}
+                            className={`${isScrolled
+                                ? 'text-text-primary dark:text-text-primary-dark'
+                                : 'text-text-primary-dark'} relative`}
+                        >
+                            <button
+                                onClick={() => setIsRegisterOpen(!isRegisterOpen)}
+                                className="auction-types-trigger flex gap-1 items-center cursor-pointer hover:underline"
                             >
-                                <button
-                                    onClick={() => setIsRegisterOpen(!isRegisterOpen)}
-                                    className="auction-types-trigger flex gap-1 items-center cursor-pointer hover:underline"
-                                >
-                                    <span>Register</span>
-                                    <ChevronDown size={16} className={`transition-transform ${isRegisterOpen ? 'rotate-180' : ''}`} />
-                                </button>
+                                <span>Register</span>
+                                <ChevronDown size={16} className={`transition-transform ${isRegisterOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-                                {isRegisterOpen && (
-                                    <div className="absolute top-full -right-full mt-6 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                                        {registerTypes.map((type) => {
-                                            const Icon = type.icon;
-                                            return (
-                                                <button
-                                                    key={type.slug}
-                                                    onClick={() => handleRegisterTypeSelect(type.slug)}
-                                                    className="w-full text-left px-4 py-2 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
-                                                >
-                                                    <Icon size={18} className="text-orange-500" />
-                                                    <span>{type.name}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </li>
-                        )}
+                            {isRegisterOpen && (
+                                <div className="absolute top-full -right-full mt-6 w-56 bg-bg-secondary dark:bg-bg-primary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                                    {registerTypes.map((type) => {
+                                        const Icon = type.icon;
+                                        return (
+                                            <button
+                                                key={type.slug}
+                                                onClick={() => handleRegisterTypeSelect(type.slug)}
+                                                className="w-full text-left px-4 py-2 flex items-center gap-3 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors text-text-primary dark:text-text-primary-dark"
+                                            >
+                                                <Icon size={18} className="text-orange-500" />
+                                                <span>{type.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </li>
 
                         <li>
                             <ThemeToggle />
