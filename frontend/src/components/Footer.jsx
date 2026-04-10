@@ -23,7 +23,7 @@ function Footer() {
     }, []);
 
     const quickLinks = [
-        { name: 'Home', href: '/' },
+        // { name: 'Home', href: '/' },
         { name: 'About', href: '/about' },
         { name: 'Contact', href: '/contact' },
         { name: 'FAQs', href: '/faqs' },
@@ -111,6 +111,14 @@ function Footer() {
                             Quick Links
                         </p>
                         <ul className='mt-3 flex flex-col gap-2'>
+                            <li
+                                onClick={() => window.location.reload()}
+                                className={
+                                            `text-bg-secondary-dark/80 hover:text-white transition-colors cursor-pointer hover:underline`
+                                        }
+                            >
+                                Home
+                            </li>
                             {quickLinks.map(link => (
                                 <li className="relative py-1" key={link.name}>
                                     <NavLink

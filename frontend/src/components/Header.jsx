@@ -10,10 +10,10 @@ import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const navLinks = [
-    {
-        name: 'Home',
-        href: '/'
-    },
+    // {
+    //     name: 'Home',
+    //     href: '/'
+    // },
     // {
     //     name: 'About',
     //     href: '/about'
@@ -64,6 +64,7 @@ function Header() {
     const { user } = useAuth();
     const auctionTypesRef = useRef(null);
     const registerRef = useRef(null);
+    const escrowRef = useRef(null);
 
     const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
     const [mobileEscrowOpen, setMobileEscrowOpen] = useState(false);
@@ -87,6 +88,10 @@ function Header() {
 
             if (registerRef.current && !registerRef.current.contains(event.target)) {
                 setIsRegisterOpen(false);
+            }
+
+            if (escrowRef.current && !escrowRef.current.contains(event.target)) {
+                setIsEscrowOpen(false);
             }
         };
 
@@ -202,6 +207,15 @@ function Header() {
                                 </NavLink>
                             </li>
                         ))}
+
+                        <li
+                            onClick={() => window.location.reload()}
+                            className={`${isScrolled
+                                ? 'text-text-primary dark:text-text-primary-dark'
+                                : 'text-text-primary-dark'} relative hover:underline cursor-pointer`}
+                        >
+                            Home
+                        </li>
 
                         {/* Auction Types Dropdown */}
                         <li
@@ -327,9 +341,11 @@ function Header() {
                         </li>
 
                         {/* Escrow Dropdown */}
-                        <li className={`${isScrolled
-                            ? 'text-text-primary dark:text-text-primary-dark'
-                            : 'text-text-primary-dark'} relative`}
+                        <li
+                            ref={escrowRef}
+                            className={`${isScrolled
+                                ? 'text-text-primary dark:text-text-primary-dark'
+                                : 'text-text-primary-dark'} relative`}
                         >
                             <button
                                 onClick={() => { setIsEscrowOpen(!isEscrowOpen) }}
