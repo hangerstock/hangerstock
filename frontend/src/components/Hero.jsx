@@ -39,7 +39,7 @@ const HeroSlider = () => {
           <div className="w-[3px] h-[40px] md:h-[60px] rounded-sm flex-shrink-0 hidden md:block" style={{ background: "linear-gradient(135deg,#FFFFFF,#AAAAAA)" }}></div>
           <div className="md:flex-1 text-center md:text-left">
             <div className="text-[11px] md:text-[12px] font-medium tracking-[0.18em] uppercase mb-3 md:mb-[10px] eyebrow" style={{ color: "#FFFFFF" }}>{otherData?.brandName}</div>
-            <div className="font-bold text-4xl sm:text-5xl md:text-[clamp(30px,4vw,60px)] leading-[1.2] md:leading-[1.15] text-white mb-3 md:mb-3 headline">The No. 1 <br /> Anti-Garment <br /> Waste App</div>
+            <div className="font-bold text-4xl sm:text-5xl md:text-[clamp(30px,4vw,60px)] leading-[1.2] md:leading-[1.15] text-white mb-3 md:mb-3 headline">The <span className="text-[#E3CE55]">No. 1</span> <br /> Anti-Garment <br /> Waste App</div>
             <div className="text-base sm:text-lg md:text-[clamp(14px,1.4vw,20px)] text-white leading-loose max-w-full md:max-w-[480px] body-text px-4 md:px-0 font-light">
               100 billion garments are produced each year and 30% of them are never sold..
             </div>
