@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const languages = [
     { code: "en", name: "English", flag: "https://flagcdn.com/us.svg" },
@@ -13,6 +13,28 @@ const languages = [
 export default function LanguageSwitcher() {
     const [open, setOpen] = useState(false);
     const [current, setCurrent] = useState(languages[0]);
+
+    // Add this useEffect inside your LanguageSwitcher component, after the useState declarations
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Check if the click is outside the language switcher container
+            const langContainer = document.querySelector('.lang-container');
+            if (langContainer && !langContainer.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+
+        // Add event listener when dropdown is open
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        // Cleanup event listener
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [open]); // Re-run when open state changes
 
     function changeLanguage(lang) {
         if (lang.code === "en") {
