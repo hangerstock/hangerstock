@@ -185,7 +185,7 @@ function Header() {
                     <img
                         src={logo}
                         alt="Hangerstock's Logo"
-                        className={`h-8 md:h-10 z-10 ${!isScrolled && pathname === '/' ? '' : 'brightness-125'}`}
+                        className={`h-10 md:h-12 z-10 ${!isScrolled && pathname === '/' ? '' : 'brightness-125'}`}
                     />
                 </Link>
 

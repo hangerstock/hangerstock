@@ -609,7 +609,7 @@ const Register = () => {
         <div className="min-h-screen pt-32 pb-16 bg-bg-secondary dark:bg-bg-primary flex items-center justify-center p-4">
             <div className="bg-gradient-to-b from-bg-primary/[0.03] to-transparent dark:from-white/[0.03] dark:to-transparent rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden border border-gray-200 dark:border-bg-primary-light">
                 <div className="pt-8 text-center flex flex-col items-center justify-center gap-3">
-                    <img src={darkLogo} alt="logo" className='h-8 brightness-125' />
+                    <img src={darkLogo} alt="logo" className='h-10 brightness-125' />
                     <p className="text-text-primary dark:text-text-primary-dark text-lg">Create your account</p>
                 </div>
 
