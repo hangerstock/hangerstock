@@ -58,6 +58,8 @@ function Header() {
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const [categories, setCategories] = useState([]);
     const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [previewProducts, setPreviewProducts] = useState([]);
+    const [previewLoading, setPreviewLoading] = useState(false);
     const [loading, setLoading] = useState(false);
     const { pathname } = useLocation();
     const navigate = useNavigate();
@@ -140,6 +142,30 @@ function Header() {
 
         fetchCategories();
     }, [isCategoriesOpen, mobileCategoriesOpen]);
+
+    // Fetch a few products of the hovered category for the mega-menu preview
+    useEffect(() => {
+        if (!hoveredCategory) {
+            setPreviewProducts([]);
+            return;
+        }
+        let cancelled = false;
+        setPreviewLoading(true);
+        axiosInstance
+            .get(`/api/v1/auctions?categories=${encodeURIComponent(hoveredCategory)}&status=active&limit=6`)
+            .then(({ data }) => {
+                if (!cancelled && data?.success) setPreviewProducts(data.data.auctions || []);
+            })
+            .catch(() => {
+                if (!cancelled) setPreviewProducts([]);
+            })
+            .finally(() => {
+                if (!cancelled) setPreviewLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [hoveredCategory]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -335,6 +361,48 @@ function Header() {
                                                                         {sub.name}
                                                                     </Link>
                                                                 ))}
+                                                            </div>
+
+                                                            {/* Product previews for this category */}
+                                                            <div className="mt-8">
+                                                                {previewLoading ? (
+                                                                    <p className="text-text-secondary dark:text-text-secondary-dark">Loading…</p>
+                                                                ) : previewProducts.length > 0 ? (
+                                                                    <>
+                                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                                                                            {previewProducts.map((p) => (
+                                                                                <Link
+                                                                                    key={p._id}
+                                                                                    to={`/auction/${p._id}`}
+                                                                                    onClick={() => setIsCategoriesOpen(false)}
+                                                                                    className="group block"
+                                                                                >
+                                                                                    <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                                                                        <img
+                                                                                            src={p.photos?.[0]?.url}
+                                                                                            alt={p.title}
+                                                                                            loading="lazy"
+                                                                                            className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <p className="mt-2 text-sm line-clamp-1 text-text-primary dark:text-text-primary-dark">{p.title}</p>
+                                                                                    <p className="text-sm font-semibold text-text-primary dark:text-text-primary-dark">
+                                                                                        ${Math.round(p.currentPrice ?? p.startPrice ?? 0).toLocaleString()}
+                                                                                    </p>
+                                                                                </Link>
+                                                                            ))}
+                                                                        </div>
+                                                                        <Link
+                                                                            to={`/auctions?category=${activeCat.slug}`}
+                                                                            onClick={() => setIsCategoriesOpen(false)}
+                                                                            className="inline-block mt-6 px-6 py-2.5 bg-black text-white dark:bg-white dark:text-black rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                                                                        >
+                                                                            Show more →
+                                                                        </Link>
+                                                                    </>
+                                                                ) : (
+                                                                    <p className="text-text-secondary dark:text-text-secondary-dark">No items in this category yet.</p>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     ))}
