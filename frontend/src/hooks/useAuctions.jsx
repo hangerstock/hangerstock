@@ -116,6 +116,14 @@ export const useAuctions = () => {
         if (categoriesParam) {
             categories = categoriesParam.split(',').filter(cat => cat.trim() !== '');
         }
+        // Also honor the singular `category` + `subcategory` params that the nav / category
+        // links use, so clicking a category actually filters the listings.
+        ['category', 'subcategory'].forEach((key) => {
+            const val = searchParams.get(key);
+            if (val && val.trim() && !categories.includes(val.trim())) {
+                categories.push(val.trim());
+            }
+        });
 
         // Extract ALL URL parameters including new ones
         const urlFilters = {
