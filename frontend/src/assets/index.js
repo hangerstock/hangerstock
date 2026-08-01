@@ -1,5 +1,5 @@
-import darkLogo from './darkLogo.webp';
-import logo from './logo.webp';
+import darkLogo from './logo.png';
+import logo from './logo.png';
 import heroImg from './heroImg.webp';
 import contactUs from './contactUs.webp';
 import menuIcon from './menuIcon.svg';
