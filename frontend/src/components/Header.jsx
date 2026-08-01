@@ -308,9 +308,14 @@ function Header() {
                                                     .filter((cat) => cat.slug === hoveredCategory)
                                                     .map((activeCat) => (
                                                         <div key={activeCat.slug}>
-                                                            <p className="text-2xl font-bold text-text-primary dark:text-text-primary-dark">
+                                                            <Link
+                                                                to={`/auctions?category=${activeCat.slug}`}
+                                                                onClick={() => setIsCategoriesOpen(false)}
+                                                                className="text-2xl font-bold text-text-primary dark:text-text-primary-dark hover:underline inline-flex items-baseline gap-2"
+                                                            >
                                                                 {activeCat.name}
-                                                            </p>
+                                                                <span className="text-sm font-medium text-text-secondary dark:text-text-secondary-dark">Shop all →</span>
+                                                            </Link>
 
                                                             <button
                                                                 onClick={() => setIsCategoriesOpen(false)}
@@ -703,6 +708,17 @@ function Header() {
                                 <h2 className="text-[22px] font-bold text-text-primary dark:text-text-primary-dark">
                                     {activeMobileCategory.name}
                                 </h2>
+
+                                <Link
+                                    to={`/auctions?category=${activeMobileCategory.slug}`}
+                                    onClick={() => {
+                                        setMobileCategoriesOpen(false);
+                                        setActiveMobileCategory(null);
+                                    }}
+                                    className="inline-block mt-3 text-base font-semibold text-text-primary dark:text-text-primary-dark underline"
+                                >
+                                    Shop all {activeMobileCategory.name} →
+                                </Link>
 
                                 <div className="mt-6 space-y-2">
                                     {activeMobileCategory.children?.map((sub) => (
